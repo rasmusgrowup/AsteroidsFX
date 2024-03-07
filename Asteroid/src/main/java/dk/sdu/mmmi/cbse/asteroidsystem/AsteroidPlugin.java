@@ -33,7 +33,7 @@ public class AsteroidPlugin implements IGamePluginService {
         Entity asteroid = new Asteroid();
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(360));
-        double size = 15 + rnd.nextInt(50);
+        int size = 15 + rnd.nextInt(50);
         double c1 = Math.cos(Math.PI * 2 / 5);
         double c2 = Math.cos(Math.PI / 5);
         double s1 = Math.sin(Math.PI * 2 / 5);
@@ -55,12 +55,13 @@ public class AsteroidPlugin implements IGamePluginService {
             default:
                 System.out.println("An error occurred in switch case EnemyPlugin");
         }
-        Double acceleration = new Random().nextDouble(0.5);
+        double acceleration = new Random().nextDouble(0.5);
         double directionX = 0.3 + acceleration * Math.cos(Math.toRadians(asteroid.getRotation()));
         double directionY = 0.3 + acceleration * Math.sin(Math.toRadians(asteroid.getRotation()));
         asteroid.setDirectionX(directionX);
         asteroid.setDirectionY(directionY);
         asteroid.setSize(size);
+        asteroid.setRadius(size * 2);
         asteroid.setFillColor(Color.BLACK);
         asteroid.setStrokeColor(Color.WHITE);
         return asteroid;
@@ -74,7 +75,6 @@ public class AsteroidPlugin implements IGamePluginService {
         }, 0, 5, TimeUnit.SECONDS);
     }
 
-    // Method to stop the scheduler (if needed)
     public void stopScheduler() {
         scheduler.shutdown();
     }

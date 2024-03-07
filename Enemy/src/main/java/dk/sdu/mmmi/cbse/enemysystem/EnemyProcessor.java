@@ -17,6 +17,7 @@ public class EnemyProcessor implements IEntityProcessingService {
     public void process(GameData gameData, World world) {
         for (Entity enemyShip : world.getEntities(Enemy.class)) {
             move(enemyShip);
+            rotate(enemyShip);
             checkEnemyShipBounds(enemyShip, gameData);
         }
     }
@@ -44,6 +45,10 @@ public class EnemyProcessor implements IEntityProcessingService {
         if (enemyShip.getY() > gameData.getDisplayHeight() + enemyShip.getSize()) {
             enemyShip.setY(-enemyShip.getSize() + 1);
         }
+    }
+
+    private void rotate(Entity enemyShip) {
+        enemyShip.setRotation(enemyShip.getRotation() + 2);
     }
 
     private Collection<? extends BulletSPI> getBulletSPIs() {

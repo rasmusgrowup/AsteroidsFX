@@ -8,57 +8,37 @@ import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import javafx.scene.paint.Color;
 
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class EnemyPlugin implements IGamePluginService {
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override
     public void start(GameData gameData, World world) {
         Entity enemyShip = createEnemy(gameData);
         world.addEntity(enemyShip);
+        startScheduler(enemyShip);
     }
 
     @Override
     public void stop(GameData gameData, World world) {
-
+        stopScheduler();
     }
 
     private Entity createEnemy(GameData gameData) {
         Entity enemyShip = new Enemy();
-        double sizeFactor = 2;
-        enemyShip.setPolygonCoordinates(
-                sizeFactor * 0,
-                sizeFactor * -7,
-                sizeFactor * 5,
-                sizeFactor * -5,
-                sizeFactor * 7,
-                sizeFactor * 0,
-                sizeFactor * 5,
-                sizeFactor * 5,
-                sizeFactor * 0,
-                sizeFactor * 7,
-                sizeFactor * -5,
-                sizeFactor * 5,
-                sizeFactor * -7,
-                sizeFactor * 0,
-                sizeFactor * -5,
-                sizeFactor * -5
-        );
-
-        /*
-        enemyShip.setPolygonCoordinates(
-                sizeFactor * -15,
-                sizeFactor * 0,
-                sizeFactor * -7,
-                sizeFactor * 7,
-                sizeFactor * 7,
-                sizeFactor * 7,
-                sizeFactor * 15,
-                sizeFactor * 0,
-                sizeFactor * 7,
-                sizeFactor * -7,
-                sizeFactor * -7,
-                sizeFactor * -7);
-         */
+        int sizeFactor = 3;
+        int numPoints = 36; // Number of points for approximation
+        double radius = sizeFactor * 7; // Adjust the radius as needed
+        double[] coordinates = new double[numPoints * 2];
+        for (int i = 0; i < numPoints; i++) {
+            double angle = 2 * Math.PI * i / numPoints;
+            coordinates[2 * i] = radius * Math.cos(angle); // x-coordinate
+            coordinates[2 * i + 1] = radius * Math.sin(angle); // y-coordinate
+        }
+        enemyShip.setPolygonCoordinates(coordinates);
         Random rnd = new Random();
         switch (rnd.nextInt(4)) {
             case 0: spawnFromLeftUpperCorner(enemyShip, gameData); break;
@@ -72,6 +52,7 @@ public class EnemyPlugin implements IGamePluginService {
         double directionY = 2 * Math.sin(Math.toRadians(enemyShip.getRotation()));
         enemyShip.setDirectionX(directionX);
         enemyShip.setDirectionY(directionY);
+        enemyShip.setRadius(sizeFactor * 7);
         enemyShip.setFillColor(Color.BLACK);
         enemyShip.setStrokeColor(Color.WHITE);
         return enemyShip;
@@ -103,5 +84,27 @@ public class EnemyPlugin implements IGamePluginService {
         enemyShip.setRotation(rnd.nextInt(70) + 190);
         enemyShip.setX(gameData.getDisplayWidth() - 1);
         enemyShip.setY(gameData.getDisplayHeight() - 1);
+    }
+
+    private void changeDirection(Entity enemyShip) {
+        Random rnd = new Random();
+        enemyShip.setRotation(rnd.nextInt(360));
+        double directionX = 2 * Math.cos(Math.toRadians(enemyShip.getRotation()));
+        double directionY = 2 * Math.sin(Math.toRadians(enemyShip.getRotation()));
+        enemyShip.setDirectionX(directionX);
+        enemyShip.setDirectionY(directionY);
+    }
+
+    public void startScheduler(Entity enemyShip) {
+        // Schedule the createAsteroid task to run every 5 seconds
+        Random rnd = new Random();
+        scheduler.scheduleAtFixedRate(() -> {
+            changeDirection(enemyShip);
+            System.out.println("changed direction");
+        }, 4, rnd.nextInt(3) + 1, TimeUnit.SECONDS);
+    }
+
+    public void stopScheduler() {
+        scheduler.shutdown();
     }
 }

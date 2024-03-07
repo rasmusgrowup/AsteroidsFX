@@ -19,6 +19,7 @@ public class Entity implements Serializable {
     private double directionX;
     private double directionY;
     private double size;
+    private float radius;
     private Color fillColor;
     private Color strokeColor;
 
@@ -123,5 +124,13 @@ public class Entity implements Serializable {
 
     public void setStrokeColor(Color strokeColor) {
         this.strokeColor = strokeColor;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
     }
 }
