@@ -37,7 +37,7 @@ public class PlayerControlSystem implements IEntityProcessingService {
 
             // Logic for pressing UP
             if (gameData.getKeys().isDown(GameKeys.UP)) {
-                accelerate(player, ACCELERATION_RATE, gameData.getDelta());
+                accelerate(player, gameData.getDelta());
             } else {
                 decelerate(player, DECELERATION_RATE, gameData.getDelta());
             }
@@ -59,9 +59,9 @@ public class PlayerControlSystem implements IEntityProcessingService {
         }
     }
 
-    private void accelerate(Entity player, double accelerationRate, float deltaTime) {
-        double accelerationX = accelerationRate * Math.cos(Math.toRadians(player.getRotation()));
-        double accelerationY = accelerationRate * Math.sin(Math.toRadians(player.getRotation()));
+    private void accelerate(Entity player, float deltaTime) {
+        double accelerationX = PlayerControlSystem.ACCELERATION_RATE * Math.cos(Math.toRadians(player.getRotation()));
+        double accelerationY = PlayerControlSystem.ACCELERATION_RATE * Math.sin(Math.toRadians(player.getRotation()));
 
         player.setVelocityX(player.getVelocityX() + accelerationX * deltaTime);
         player.setVelocityY(player.getVelocityY() + accelerationY * deltaTime);
@@ -137,9 +137,5 @@ public class PlayerControlSystem implements IEntityProcessingService {
 
     private Collection<? extends BulletSPI> getBulletSPIs() {
         return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-    }
-
-    private Collection<? extends AsteroidSPI> getAsteroidSPIs() {
-        return ServiceLoader.load(AsteroidSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 }

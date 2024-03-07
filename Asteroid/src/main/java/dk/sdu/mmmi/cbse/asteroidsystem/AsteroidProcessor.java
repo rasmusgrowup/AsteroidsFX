@@ -1,7 +1,6 @@
 package dk.sdu.mmmi.cbse.asteroidsystem;
 
 import dk.sdu.mmmi.cbse.common.asteroid.Asteroid;
-import dk.sdu.mmmi.cbse.common.asteroid.AsteroidSPI;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
@@ -9,7 +8,7 @@ import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.Random;
 
-public class AsteroidProcessor implements IEntityProcessingService, AsteroidSPI {
+public class AsteroidProcessor implements IEntityProcessingService {
 
     @Override
     public void process(GameData gameData, World world) {
@@ -18,7 +17,6 @@ public class AsteroidProcessor implements IEntityProcessingService, AsteroidSPI 
             checkAsteroidsBounds(asteroid, gameData);
             rotate(asteroid);
         }
-
     }
 
     public void move(Entity asteroid) {
@@ -58,10 +56,5 @@ public class AsteroidProcessor implements IEntityProcessingService, AsteroidSPI 
         if (asteroid.getY() > gameData.getDisplayHeight() + asteroid.getSize()) {
             asteroid.setY(-asteroid.getSize() + 1);
         }
-    }
-
-    @Override
-    public Entity createAsteroid(Entity e, GameData gameData) {
-        return null;
     }
 }
