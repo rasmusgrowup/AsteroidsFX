@@ -30,13 +30,13 @@ public class EnemyPlugin implements IGamePluginService {
     private Entity createEnemy(GameData gameData) {
         Entity enemyShip = new Enemy();
         int sizeFactor = 3;
-        int numPoints = 36; // Number of points for approximation
-        double radius = sizeFactor * 7; // Adjust the radius as needed
+        int numPoints = 36;
+        double radius = sizeFactor * 7;
         double[] coordinates = new double[numPoints * 2];
         for (int i = 0; i < numPoints; i++) {
             double angle = 2 * Math.PI * i / numPoints;
-            coordinates[2 * i] = radius * Math.cos(angle); // x-coordinate
-            coordinates[2 * i + 1] = radius * Math.sin(angle); // y-coordinate
+            coordinates[2 * i] = radius * Math.cos(angle);
+            coordinates[2 * i + 1] = radius * Math.sin(angle);
         }
         enemyShip.setPolygonCoordinates(coordinates);
         Random rnd = new Random();
