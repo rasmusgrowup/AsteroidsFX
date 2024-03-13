@@ -4,22 +4,21 @@ import dk.sdu.mmmi.cbse.common.enemy.Enemy;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
+import dk.sdu.mmmi.cbse.common.enemy.EnemySPI;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import javafx.scene.paint.Color;
 
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-public class EnemyPlugin implements IGamePluginService {
+public class EnemyPlugin implements IGamePluginService, EnemySPI {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override
     public void start(GameData gameData, World world) {
         Entity enemyShip = createEnemy(gameData);
         world.addEntity(enemyShip);
-        startScheduler(enemyShip);
     }
 
     @Override
@@ -27,11 +26,13 @@ public class EnemyPlugin implements IGamePluginService {
         stopScheduler();
     }
 
-    private Entity createEnemy(GameData gameData) {
-        Entity enemyShip = new Enemy();
+    @Override
+    public Entity createEnemy(GameData gameData) {
+        Enemy enemyShip = new Enemy();
         int sizeFactor = 3;
         int numPoints = 36;
         double radius = sizeFactor * 7;
+        enemyShip.setSize(radius);
         double[] coordinates = new double[numPoints * 2];
         for (int i = 0; i < numPoints; i++) {
             double angle = 2 * Math.PI * i / numPoints;
@@ -48,6 +49,9 @@ public class EnemyPlugin implements IGamePluginService {
             default:
                 System.out.println("An error occurred in switch case EnemyPlugin");
         }
+        double initialRotation = enemyShip.getRotation();
+        enemyShip.setInitialRotation(initialRotation);
+        enemyShip.setCanShoot(false);
         double directionX = 2 * Math.cos(Math.toRadians(enemyShip.getRotation()));
         double directionY = 2 * Math.sin(Math.toRadians(enemyShip.getRotation()));
         enemyShip.setDirectionX(directionX);
@@ -55,6 +59,7 @@ public class EnemyPlugin implements IGamePluginService {
         enemyShip.setRadius(sizeFactor * 7);
         enemyShip.setFillColor(Color.BLACK);
         enemyShip.setStrokeColor(Color.WHITE);
+        //startScheduler(enemyShip);
         return enemyShip;
     }
 
@@ -84,24 +89,6 @@ public class EnemyPlugin implements IGamePluginService {
         enemyShip.setRotation(rnd.nextInt(70) + 190);
         enemyShip.setX(gameData.getDisplayWidth() - 1);
         enemyShip.setY(gameData.getDisplayHeight() - 1);
-    }
-
-    private void changeDirection(Entity enemyShip) {
-        Random rnd = new Random();
-        enemyShip.setRotation(rnd.nextInt(360));
-        double directionX = 2 * Math.cos(Math.toRadians(enemyShip.getRotation()));
-        double directionY = 2 * Math.sin(Math.toRadians(enemyShip.getRotation()));
-        enemyShip.setDirectionX(directionX);
-        enemyShip.setDirectionY(directionY);
-    }
-
-    public void startScheduler(Entity enemyShip) {
-        // Schedule the createAsteroid task to run every 5 seconds
-        Random rnd = new Random();
-        scheduler.scheduleAtFixedRate(() -> {
-            changeDirection(enemyShip);
-            System.out.println("changed direction");
-        }, 4, rnd.nextInt(3) + 1, TimeUnit.SECONDS);
     }
 
     public void stopScheduler() {

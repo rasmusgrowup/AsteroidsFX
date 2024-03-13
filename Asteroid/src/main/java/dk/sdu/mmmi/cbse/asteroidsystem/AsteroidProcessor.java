@@ -30,16 +30,6 @@ public class AsteroidProcessor implements IEntityProcessingService {
         asteroid.setRotation(asteroid.getRotation() + new Random().nextDouble(0.4));
     }
 
-    private void checkAsteroidBounds(Entity asteroid, GameData gameData) {
-        if (asteroid.getX() < 0 || asteroid.getX() > gameData.getDisplayWidth()) {
-            asteroid.setDirectionX(-asteroid.getDirectionX());
-        }
-
-        if (asteroid.getY() < 0 || asteroid.getY() > gameData.getDisplayHeight()) {
-            asteroid.setDirectionY(-asteroid.getDirectionY());
-        }
-    }
-
     private void checkAsteroidsBounds(Entity asteroid, GameData gameData) {
         if (asteroid.getX() < 0 - asteroid.getSize()) {
             asteroid.setX(gameData.getDisplayWidth() + asteroid.getSize() - 1);

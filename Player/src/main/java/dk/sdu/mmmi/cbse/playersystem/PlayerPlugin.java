@@ -27,9 +27,10 @@ public class PlayerPlugin implements IGamePluginService {
         playerShip.setFillColor(Color.BLACK);
         playerShip.setStrokeColor(Color.WHITE);
         playerShip.setPolygonCoordinates(-10,-10,20,0,-10,10);
-        //playerShip.setPolygonCoordinates(12, -1, 8, -1, 8, -3, 6, -3, 6, -5, -2, -5, -2, -7, 0, -7, 0, -9, -10, -9, -10, -5, -8, -5, -8, -3, -6, -3, -6, -1, -10, -1, -10, 1, -6, 1, -6, 3, -8, 3, -8, 5, -10, 5, -10, 9, 0, 9, 0, 7, -2, 7, -2, 5, 2, 5, 2, 1, 4, 1, 4, -1, 2, -1, 2, -3, 4, -3, 4, -1, 6, -1, 6, 1, 4, 1, 4, 3, 2, 3, 2, 5, 6, 5, 6, 3, 8, 3, 8, 1, 12, 1);
         playerShip.setX(gameData.getDisplayHeight()/2);
         playerShip.setY(gameData.getDisplayWidth()/2);
+        playerShip.setSize(30);
+        playerShip.setRadius(15);
         playerShip.setVelocityX(0);
         playerShip.setVelocityY(0);
         return playerShip;

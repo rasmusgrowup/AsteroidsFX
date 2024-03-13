@@ -25,13 +25,13 @@ public class PlayerControlSystem implements IEntityProcessingService {
         for (Entity player : world.getEntities(Player.class)) {
             // Logic for pressing LEFT
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
-                player.setRotation(player.getRotation() - 2.5);
+                player.setRotation(player.getRotation() - 3.5);
                 updateDirection(player);
             }
 
             // Logic for pressing RIGHT
             if (gameData.getKeys().isDown(GameKeys.RIGHT)) {
-                player.setRotation(player.getRotation() + 2.5);
+                player.setRotation(player.getRotation() + 3.5);
                 updateDirection(player);
             }
 
@@ -46,6 +46,7 @@ public class PlayerControlSystem implements IEntityProcessingService {
                 decelerate(player, DECELERATION_RATE * 4, gameData.getDelta());
             }
 
+            // Logic for pressing SPACE
             if(gameData.getKeys().isPressed(GameKeys.SPACE)) {
                 getBulletSPIs().stream().findFirst().ifPresent(
                         spi -> {

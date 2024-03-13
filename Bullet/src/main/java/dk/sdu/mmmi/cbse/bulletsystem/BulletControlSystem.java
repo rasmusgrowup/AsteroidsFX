@@ -24,9 +24,10 @@ public class BulletControlSystem implements IEntityProcessingService, BulletSPI 
     @Override
     public Entity createBullet(Entity shooter, GameData gameData) {
         Entity bullet = new Bullet();
+        ((Bullet) bullet).setOwner(shooter);
         bullet.setFillColor(Color.WHITE);
         bullet.setStrokeColor(Color.WHITE);
-        bullet.setPolygonCoordinates(2, -2, 2, 2, -2, 2, -2, -2);
+        bullet.setPolygonCoordinates(1, -1, 1, 1, -1, 1, -1, -1);
         bullet.setX(shooter.getX());
         bullet.setY(shooter.getY());
         bullet.setRotation(shooter.getRotation());

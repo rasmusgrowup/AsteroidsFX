@@ -24,22 +24,26 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-
     private final GameData gameData = new GameData();
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
     private final Pane gameWindow = new Pane();
+    private Text text1, text2;
     private long startTime = System.nanoTime();
 
     public static void main(String[] args) {
-        launch(Main.class);
+        launch(args);
     }
 
     @Override
     public void start(Stage window) throws Exception {
-        Text text = new Text(10, 20, "Destroyed asteroids: 0");
+        text1 = new Text(10, 20, "Destroyed asteroids: 0" + gameData.getDestroyedAsteroids());
+        text2 = new Text(10, 50, "Destroyed enemies: 0" + gameData.getDestroyedEnemies());
+        text1.setFill(Color.RED);
+        text2.setFill(Color.RED);
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
-        gameWindow.getChildren().add(text);
+        gameWindow.getChildren().add(text1);
+        gameWindow.getChildren().add(text2);
         gameWindow.setBackground(Background.fill(Color.BLACK));
 
         Scene scene = new Scene(gameWindow);
@@ -115,6 +119,9 @@ public class Main extends Application {
                 update(); // Updates the Entities for the world
                 draw(); // Draws the Polygons
                 gameData.getKeys().update(); // Updates the keys used by the player
+
+                text1.setText("Destroyed asteroids: " + gameData.getDestroyedAsteroids());
+                text2.setText("Destroyed enemies: " + gameData.getDestroyedEnemies());
             }
 
         }.start();
@@ -125,12 +132,20 @@ public class Main extends Application {
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
-//        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
-//            postEntityProcessorService.process(gameData, world);
-//        }
+        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
+            postEntityProcessorService.process(gameData, world);
+        }
     }
 
     private void draw() {
+        for (Entity polygonEntity : polygons.keySet()) {
+            if(!world.getEntities().contains(polygonEntity)){
+                Polygon removedPolygon = polygons.get(polygonEntity);
+                polygons.remove(polygonEntity);
+                gameWindow.getChildren().remove(removedPolygon);
+            }
+        }
+
         for (Entity entity : world.getEntities()) {
             Polygon polygon = polygons.get(entity);
             if (polygon == null) {
