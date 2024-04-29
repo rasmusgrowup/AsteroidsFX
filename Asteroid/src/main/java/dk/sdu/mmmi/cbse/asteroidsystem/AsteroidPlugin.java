@@ -72,6 +72,7 @@ public class AsteroidPlugin implements IGamePluginService {
         scheduler.scheduleAtFixedRate(() -> {
             Entity asteroid = createAsteroid(gameData);
             world.addEntity(asteroid);
+            System.out.println("added asteroid");
         }, 0, 5, TimeUnit.SECONDS);
     }
 
