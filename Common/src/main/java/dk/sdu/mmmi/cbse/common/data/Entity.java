@@ -22,6 +22,7 @@ public class Entity implements Serializable {
     private float radius;
     private Color fillColor;
     private Color strokeColor;
+    private int health;
 
     public String getID() {
         return ID.toString();
@@ -132,5 +133,13 @@ public class Entity implements Serializable {
 
     public void setRadius(float radius) {
         this.radius = radius;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public int getHealth() {
+        return health;
     }
 }

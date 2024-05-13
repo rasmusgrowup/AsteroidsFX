@@ -61,21 +61,6 @@
             <version>1.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>6.1.3</version> <!-- Use the latest version -->
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>6.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>6.1.3</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -86,11 +71,12 @@
                 <version>${javafx.maven.plugin.version}</version>
                 <configuration>
                     <mainClass>dk.sdu.mmmi.cbse.main.Main</mainClass>
-                    <!-- Additional module paths if needed -->
+                    <!-- Additional module paths if needed
                     <modulePaths>
                         <modulePath>../mods-mvn</modulePath>
                         <modulePath>../libs</modulePath>
                     </modulePaths>
+                    -->
                 </configuration>
             </plugin>
 

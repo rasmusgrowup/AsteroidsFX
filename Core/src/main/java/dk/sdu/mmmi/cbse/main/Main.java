@@ -7,9 +7,14 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
-import java.util.Collection;
-import java.util.Map;
-import java.util.ServiceLoader;
+
+import java.lang.module.Configuration;
+import java.lang.module.ModuleDescriptor;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.util.stream.Collectors.toList;
 import javafx.animation.AnimationTimer;
@@ -31,8 +36,22 @@ public class Main extends Application {
     private Text text1, text2;
     private long startTime = System.nanoTime();
 
+    private static final List<ModuleLayer> allLayers = new ArrayList<>();
+
     public static void main(String[] args) {
-        launch(args);
+        Path pluginsPath = Paths.get("plugins");
+        ModuleFinder finder = ModuleFinder.of(pluginsPath);
+        finder.findAll().stream().map(ModuleReference::descriptor).map(ModuleDescriptor::name).map((plugin) ->
+                createLayer(pluginsPath.toString(), plugin)).forEach(allLayers::add);
+        launch(Main.class);
+    }
+
+    private static ModuleLayer createLayer(String from, String... modules) {
+        ModuleFinder finder = ModuleFinder.of(Paths.get(from));
+        Set<String> moduleNames = new HashSet<>(Arrays.asList(modules));
+        Configuration cf = ModuleLayer.boot().configuration().resolve(finder, ModuleFinder.of(), moduleNames);
+        ModuleLayer parent = ModuleLayer.boot();
+        return parent.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
     }
 
     @Override
@@ -173,6 +192,14 @@ public class Main extends Application {
     }
 
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        List<IPostEntityProcessingService> allIPostEntityProcessingServices = new ArrayList<>();
+
+        ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).forEach(allIPostEntityProcessingServices::add);
+
+        for (ModuleLayer layer : allLayers) {
+            allIPostEntityProcessingServices.addAll(ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList()));
+        }
+
+        return allIPostEntityProcessingServices;
     }
 }
