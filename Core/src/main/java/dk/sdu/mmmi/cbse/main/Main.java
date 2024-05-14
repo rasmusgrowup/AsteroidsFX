@@ -7,9 +7,14 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
-import java.util.Collection;
-import java.util.Map;
-import java.util.ServiceLoader;
+
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
+import java.lang.module.ModuleDescriptor;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.util.stream.Collectors.toList;
 import javafx.animation.AnimationTimer;
@@ -30,8 +35,14 @@ public class Main extends Application {
     private final Pane gameWindow = new Pane();
     private Text text1, text2;
     private long startTime = System.nanoTime();
+    private static ModuleLayer layer;
 
     public static void main(String[] args) {
+        Path pathToPlugins = Paths.get("plugins");
+        ModuleFinder moduleFinder = ModuleFinder.of(pathToPlugins);
+        List<String> modules = moduleFinder.findAll().stream().map(ModuleReference::descriptor).map(ModuleDescriptor::name).collect(toList());
+        Configuration plugsinConfiguration = ModuleLayer.boot().configuration().resolve(moduleFinder, ModuleFinder.of(), modules);
+        layer = ModuleLayer.boot().defineModulesWithOneLoader(plugsinConfiguration, ClassLoader.getSystemClassLoader());
         launch(args);
     }
 
@@ -165,14 +176,21 @@ public class Main extends Application {
     }
 
     private Collection<? extends IGamePluginService> getPluginServices() {
-        return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(layer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
     private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
-        return ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(layer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
+
+    private static ModuleLayer createLayer(String from, String module) {
+        var finder = ModuleFinder.of(Paths.get(from));
+        var parent = ModuleLayer.boot();
+        var cf = parent.configuration().resolve(finder, ModuleFinder.of(), Set.of(module));
+        return parent.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
     }
 }

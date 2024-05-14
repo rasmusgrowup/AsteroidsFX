@@ -1,4 +1,4 @@
-package dk.sdu.mmmi.cbse.asteroidsystem;
+package dk.sdu.mmmi.cbse;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
