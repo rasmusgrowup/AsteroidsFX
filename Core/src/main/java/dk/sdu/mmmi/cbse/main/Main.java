@@ -21,10 +21,16 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+/**
+ * @author rasan22@student.sdu.dk
+ * Class: Main
+ * Implements: Application
+ * Provided Interfaces: none
+ * Required Interfaces: IEntityProcessingService, IGamePluginService, IPostEntityProcessingService, IScoreProcessorService
+ */
 public class Main extends Application {
     private final GameData gameData = new GameData();
     private final World world = new World();
@@ -33,10 +39,21 @@ public class Main extends Application {
     private Text text1, text2, text3, text4;
     private long startTime = System.nanoTime();
 
+    /**
+     * Method: main
+     * Launches the JavaFX application.
+     * @param args - The command line arguments.
+     */
     public static void main(String[] args) {
         launch(Main.class);
     }
 
+    /**
+     * Method: start
+     * Initializes the game window, the game data, and the world.
+     * Starts the game loop and updates the game window.
+     * @param window - The JavaFX stage object representing the game window.
+     */
     @Override
     public void start(Stage window) throws Exception {
         text1 = new Text(10, 20, "Destroyed asteroids: " + gameData.getDestroyedAsteroids());
@@ -109,6 +126,10 @@ public class Main extends Application {
 
     }
 
+    /**
+     * Method: render
+     * Creates an AnimationTimer that updates the game window.
+     */
     private void render() {
         new AnimationTimer() {
             private long lastTime = System.nanoTime();
@@ -142,6 +163,10 @@ public class Main extends Application {
         }.start();
     }
 
+    /**
+     * Method: stop
+     * Stops the game loop and removes the game window.
+     */
     private void update() {
         // Update
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
@@ -152,6 +177,10 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Method: draw
+     * Draws the Polygons for the Entities in the world.
+     */
     private void draw() {
         for (Entity polygonEntity : polygons.keySet()) {
             if(!world.getEntities().contains(polygonEntity)){
@@ -179,18 +208,38 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Method: getPluginServices
+     * Gets all the Game Plugins using ServiceLoader.
+     * @return A collection of all the Game Plugins.
+     */
     private Collection<? extends IGamePluginService> getPluginServices() {
         return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
+    /**
+     * Method: getEntityProcessingServices
+     * Gets all the Entity Processing Services using ServiceLoader.
+     * @return A collection of all the Entity Processing Services.
+     */
     private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
         return ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
+    /**
+     * Method: getPostEntityProcessingServices
+     * Gets all the Post Entity Processing Services using ServiceLoader.
+     * @return A collection of all the Post Entity Processing Services.
+     */
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
         return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
+    /**
+     * Method: getIScoreProcessorService
+     * Gets all the Score Processor Services using ServiceLoader.
+     * @return A collection of all the Score Processor Services.
+     */
     private Collection<? extends IScoreProcessorService> getIScoreProcessorService() {
         return ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }

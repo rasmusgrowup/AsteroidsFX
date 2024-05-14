@@ -8,8 +8,22 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import javafx.scene.paint.Color;
 
+/**
+ * @author rasan22@student.sdu.dk
+ * The BulletControlSystem class controls the behavior of bullets in the game.
+ * The class implements the IEntityProcessingService and BulletSPI interfaces
+ * Provided Interfaces: IEntityProcessingService, BulletSPI
+ * Required Interfaces: None
+ */
 public class BulletControlSystem implements IEntityProcessingService, BulletSPI {
 
+    /**
+     * The method processes the game data and world objects, in order to control the behavior of bullets in the game.
+     * The method loops through all bullet entities in the world and updates their position.
+     * If a bullet entity has no health left, the method removes the bullet entity from the world.
+     * @param gameData - The gameData object containing the game data.
+     * @param world - The world object containing the game world.
+     */
     @Override
     public void process(GameData gameData, World world) {
 
@@ -22,12 +36,25 @@ public class BulletControlSystem implements IEntityProcessingService, BulletSPI 
         }
     }
 
+    /**
+     * The method updates the health of a bullet entity.
+     * If the health of the bullet entity is less than or equal to 0, the method removes the bullet entity from the world.
+     * @param bullet - The bullet entity to update the health of.
+     * @param world - The world object containing the game world.
+     */
     private void updateHealth(Entity bullet, World world) {
         if (bullet.getHealth() <= 0) {
             world.removeEntity(bullet);
         }
     }
 
+    /**
+     * The method creates a bullet entity.
+     * The method creates a bullet entity with a specific owner, color, polygon coordinates, position, rotation, health, and damage.
+     * @param shooter - The entity that shoots the bullet.
+     * @param gameData - The gameData object containing the game data.
+     * @return Entity - The bullet entity created.
+     */
     @Override
     public Entity createBullet(Entity shooter, GameData gameData) {
         Entity bullet = new Bullet();

@@ -13,15 +13,33 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class is responsible for creating asteroids and adding them to the world.
+ * It also schedules the creation of asteroids every 5 seconds.
+ * Implements the IGamePluginService and AsteroidSPI interfaces.
+ * Provided Interfaces: IGamePluginService, AsteroidSPI
+ * Required Interfaces: None
+ */
 public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
-
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * This method is called when the plugin is started.
+     * It starts the creation of asteroids.
+     * @param gameData GameData object
+     * @param world World object
+     */
     @Override
     public void start(GameData gameData, World world) {
         startAsteroidCreation(gameData, world);
     }
 
+    /**
+     * This method is called when the plugin is stopped.
+     * It stops the creation of asteroids and removes all asteroids from the world.
+     * @param gameData GameData object
+     * @param world World object
+     */
     @Override
     public void stop(GameData gameData, World world) {
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
@@ -30,6 +48,14 @@ public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
         stopScheduler();
     }
 
+    /**
+     * This method creates an asteroid entity.
+     * The asteroid is given a random rotation and size.
+     * The asteroid is spawned from one of the four corners of the screen.
+     * The asteroid is given a random direction and speed.
+     * @param gameData - GameData object
+     * @return Entity object
+     */
     @Override
     public Entity createAsteroid(GameData gameData) {
         Entity asteroid = new Asteroid();
@@ -71,6 +97,11 @@ public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
         return asteroid;
     }
 
+    /**
+     * This method schedules the creation of asteroids every 5 seconds.
+     * @param gameData - GameData object
+     * @param world - World object
+     */
     public void startAsteroidCreation(GameData gameData, World world) {
         // Schedule the createAsteroid task to run every 5 seconds
         scheduler.scheduleAtFixedRate(() -> {
@@ -79,10 +110,18 @@ public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
         }, 0, 5, TimeUnit.SECONDS);
     }
 
+    /**
+     * This method stops the scheduler.
+     */
     public void stopScheduler() {
         scheduler.shutdown();
     }
 
+    /**
+     * This method spawns an asteroid from the left upper corner of the screen.
+     * @param asteroid - Entity object
+     * @param gameData - GameData object
+     */
     private static void spawnFromLeftUpperCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 10);
@@ -90,6 +129,11 @@ public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
         asteroid.setY(1);
     }
 
+    /**
+     * This method spawns an asteroid from the left lower corner of the screen.
+     * @param asteroid - Entity object
+     * @param gameData - GameData object
+     */
     private static void spawnFromLeftLowerCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 280);
@@ -97,6 +141,11 @@ public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
         asteroid.setY(gameData.getDisplayHeight() - 1);
     }
 
+    /**
+     * This method spawns an asteroid from the right upper corner of the screen.
+     * @param asteroid - Entity object
+     * @param gameData - GameData object
+     */
     private static void spawnFromRightUpperCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 100);
@@ -104,6 +153,11 @@ public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
         asteroid.setY(1);
     }
 
+    /**
+     * This method spawns an asteroid from the right lower corner of the screen.
+     * @param asteroid - Entity object
+     * @param gameData - GameData object
+     */
     private static void spawnFromRightLowerCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 190);

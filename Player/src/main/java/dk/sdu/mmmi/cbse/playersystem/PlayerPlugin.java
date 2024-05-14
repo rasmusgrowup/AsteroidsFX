@@ -6,13 +6,23 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import javafx.scene.paint.Color;
 
+/**
+ * @author rasan22@student.sdu.dk
+ * Class: PlayerPlugin
+ * Implements: IGamePluginService
+ * Provided Interfaces: IGamePluginService
+ * Required Interfaces: none
+ */
 public class PlayerPlugin implements IGamePluginService {
 
     private Entity player;
 
-    public PlayerPlugin() {
-    }
-
+    /**
+     * Method: start
+     * Creates a new instance of Player and adds it to the world.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     */
     @Override
     public void start(GameData gameData, World world) {
         // Add entities to the world
@@ -20,8 +30,14 @@ public class PlayerPlugin implements IGamePluginService {
         world.addEntity(player);
     }
 
+    /**
+     * Method: createPlayerShip
+     * Creates a new instance of Player with the specified properties.
+     * The properties must be set, in order for the player to be drawn correctly.
+     * @param gameData - The game data object containing the game state.
+     * @return playerShip - The player entity that was created.
+     */
     private Entity createPlayerShip(GameData gameData) {
-
         Entity playerShip = new Player();
         playerShip.setFillColor(Color.BLACK);
         playerShip.setStrokeColor(Color.WHITE);
@@ -38,6 +54,12 @@ public class PlayerPlugin implements IGamePluginService {
         return playerShip;
     }
 
+    /**
+     * Method: stop
+     * Removes the player entity from the world.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     */
     @Override
     public void stop(GameData gameData, World world) {
         // Remove entities

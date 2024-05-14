@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
- * @author jcs
+ * @author rasan22@student.sdu.dk
+ * The World class defines the common properties of the game world.
+ * It holds a map of entities in the game, and provides ways to add, remove and get entities.
  */
 public class World {
 

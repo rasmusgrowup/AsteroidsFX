@@ -1,5 +1,10 @@
 package dk.sdu.mmmi.cbse.common.data;
 
+/**
+ * @author rasan22@student.sdu.dk
+ * The GameKeys class defines the keys pressed by the player.
+ * The class provides a way to set if the key is pressed or not.
+ */
 public class GameKeys {
 
     private static boolean[] keys;

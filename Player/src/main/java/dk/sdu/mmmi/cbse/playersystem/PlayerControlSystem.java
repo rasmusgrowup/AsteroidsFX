@@ -12,13 +12,26 @@ import java.util.ServiceLoader;
 
 import static java.util.stream.Collectors.toList;
 
-
+/**
+ * @author rasan22@student.sdu.dk
+ * Class: PlayerControlSystem
+ * Implements: IEntityProcessingService
+ * Provided Interfaces: IEntityProcessingService
+ * Required Interfaces: BulletSPI
+ */
 public class PlayerControlSystem implements IEntityProcessingService {
     private static final double ACCELERATION_RATE = 200;
     private static final double DECELERATION_RATE = 25;
     private static final double MAX_SPEED = 400.0;
     private static int currentHealth;
 
+    /**
+     * Method: process
+     * Updates the player's position, rotation, and velocity based on the player's input,
+     * checks if the player is outside the game window, and updates the player's health.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+    */
     @Override
     public void process(GameData gameData, World world) {
         for (Entity player : world.getEntities(Player.class)) {
@@ -59,6 +72,12 @@ public class PlayerControlSystem implements IEntityProcessingService {
         }
     }
 
+    /**
+     * Method: accelerate
+     * Accelerates the player based on the player's rotation and the acceleration rate.
+     * @param player - The player entity to accelerate.
+     * @param deltaTime - The time since the last update.
+     */
     private void accelerate(Entity player, float deltaTime) {
         double accelerationX = PlayerControlSystem.ACCELERATION_RATE * Math.cos(Math.toRadians(player.getRotation()));
         double accelerationY = PlayerControlSystem.ACCELERATION_RATE * Math.sin(Math.toRadians(player.getRotation()));
@@ -66,7 +85,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
         player.setVelocityX(player.getVelocityX() + accelerationX * deltaTime);
         player.setVelocityY(player.getVelocityY() + accelerationY * deltaTime);
 
-        // Limit speed to MAX_SPEED
         double speed = Math.sqrt(player.getVelocityX() * player.getVelocityX() + player.getVelocityY() * player.getVelocityY());
         if (speed > MAX_SPEED) {
             double ratio = MAX_SPEED / speed;
@@ -75,31 +93,38 @@ public class PlayerControlSystem implements IEntityProcessingService {
         }
     }
 
+    /**
+     * Method: decelerate
+     * Decelerates the player based on the deceleration rate.
+     * @param player - The player entity to decelerate.
+     * @param decelerationRate - The rate at which the player should decelerate.
+     * @param deltaTime - The time since the last update.
+     */
     private void decelerate(Entity player, double decelerationRate, float deltaTime) {
-        // Calculate the magnitude of the current velocity
-        double velocityMagnitude = Math.sqrt(player.getVelocityX() * player.getVelocityX() +
-                player.getVelocityY() * player.getVelocityY());
 
-        // If the magnitude is smaller than the deceleration rate, stop the player
+        double velocityMagnitude = Math.sqrt(player.getVelocityX() * player.getVelocityX() + player.getVelocityY() * player.getVelocityY());
+
         if (velocityMagnitude < decelerationRate * deltaTime) {
             player.setVelocityX(0);
             player.setVelocityY(0);
         } else {
-            // Calculate the unit vector of the current velocity
             double unitVelocityX = player.getVelocityX() / velocityMagnitude;
             double unitVelocityY = player.getVelocityY() / velocityMagnitude;
-
-            // Apply deceleration in the opposite direction of the current velocity
             double decelerationX = -unitVelocityX * decelerationRate;
             double decelerationY = -unitVelocityY * decelerationRate;
-
-            // Update the velocity
             player.setVelocityX(player.getVelocityX() + decelerationX * deltaTime);
             player.setVelocityY(player.getVelocityY() + decelerationY * deltaTime);
         }
     }
 
 
+    /**
+     * Method: updatePlayerPosition
+     * Updates the player's position based on the player's velocity,
+     * and the Player's current position.
+     * @param player - The player entity to update the position of.
+     * @param deltaTime - The time since the last update.
+     */
     private void updatePlayerPosition(Entity player, float deltaTime) {
         double newX = player.getX() + player.getVelocityX() * deltaTime;
         double newY = player.getY() + player.getVelocityY() * deltaTime;
@@ -108,6 +133,12 @@ public class PlayerControlSystem implements IEntityProcessingService {
         player.setY(newY);
     }
 
+    /**
+     * Method: checkPlayerBounds
+     * Checks if the player is outside the game window, and moves the player to the opposite side if so.
+     * @param player - The player entity to check the bounds of.
+     * @param gameData - The game data object containing the game state.
+     */
     private void checkPlayerBounds(Entity player, GameData gameData) {
         if (player.getX() < 0) {
             player.setX(gameData.getDisplayWidth() - 1);
@@ -126,6 +157,11 @@ public class PlayerControlSystem implements IEntityProcessingService {
         }
     }
 
+    /**
+     * Method: updateDirection
+     * Updates the player's direction based on the player's rotation.
+     * @param player - The player entity to update the direction of.
+     */
     private void updateDirection(Entity player) {
         double radians = Math.toRadians(player.getRotation());
         double directionX = Math.cos(radians);
@@ -135,6 +171,12 @@ public class PlayerControlSystem implements IEntityProcessingService {
         player.setDirectionY(directionY);
     }
 
+    /**
+     * Method: reset
+     * Resets the player's position, velocity, and rotation to the center of the game window.
+     * @param player - The player entity to reset.
+     * @param gameData - The game data object containing the game state.
+     */
     private void reset(Entity player, GameData gameData) {
         player.setX(gameData.getDisplayWidth() / 2);
         player.setY(gameData.getDisplayHeight() / 2);
@@ -143,6 +185,12 @@ public class PlayerControlSystem implements IEntityProcessingService {
         player.setRotation(0);
     }
 
+    /**
+     * Method: updateHealth
+     * Updates the player's health, and sets the game over flag if the player's health is 0.
+     * @param player - The player entity to update the health of.
+     * @param gameData - The game data object containing the game state.
+     */
     private void updateHealth(Entity player, GameData gameData) {
         if (player.getHealth() <= 0) {
             gameData.setGameover(true);
@@ -153,6 +201,10 @@ public class PlayerControlSystem implements IEntityProcessingService {
         gameData.setPlayerHealth(player.getHealth());
     }
 
+    /**
+     * Method: getBulletSPIs
+     * Returns a collection of all BulletSPI implementations.
+     */
     private Collection<? extends BulletSPI> getBulletSPIs() {
         return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }

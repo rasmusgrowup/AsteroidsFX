@@ -1,5 +1,13 @@
 package dk.sdu.mmmi.cbse.common.data;
 
+/**
+ * The GameData class defines the window size,
+ * the number of destroyed asteroids and enemies,
+ * the player health, the game over state,
+ * the time difference between frames
+ * and the elapsed time.
+ * It also holds the keys pressed by the player.
+ */
 public class GameData {
 
     private int displayWidth  = 800 ;
@@ -11,7 +19,6 @@ public class GameData {
     private float delta; // Time difference between frames
     private double elapsedTime;
     private final GameKeys keys = new GameKeys();
-
 
     public GameKeys getKeys() {
         return keys;

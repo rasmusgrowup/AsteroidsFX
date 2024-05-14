@@ -5,7 +5,13 @@ import javafx.scene.paint.Color;
 import java.io.Serializable;
 import java.util.UUID;
 
-public abstract class Entity implements Serializable {
+/**
+ * @author rasan22@student.sdu.dk
+ * The Entity class defines the common properties of all entities in the game.
+ * The class implements the Serializable interface
+ * Provided Interfaces: Serializable
+ */
+public class Entity implements Serializable {
 
     private final UUID ID = UUID.randomUUID();
     

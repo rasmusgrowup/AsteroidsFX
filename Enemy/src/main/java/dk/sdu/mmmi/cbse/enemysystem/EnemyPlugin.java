@@ -9,23 +9,49 @@ import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import javafx.scene.paint.Color;
 
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * @author rasan22@student.sdu.dk
+ * Class: EnemyPlugin
+ * Implements: IGamePluginService, EnemySPI
+ * Provided Interfaces: IGamePluginService, EnemySPI
+ * Required Interfaces: none
+ */
 public class EnemyPlugin implements IGamePluginService, EnemySPI {
-    //private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Method: start
+     * Creates a new instance of Enemy and adds it to the world.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     */
     @Override
     public void start(GameData gameData, World world) {
         Entity enemyShip = createEnemy(gameData);
         world.addEntity(enemyShip);
     }
 
+    /**
+     * Method: stop
+     * Removes all enemy entities from the world.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     */
+
     @Override
     public void stop(GameData gameData, World world) {
-        //stopScheduler();
+        for (Entity enemy : world.getEntities(Enemy.class)) {
+            world.removeEntity(enemy);
+        }
     }
 
+    /**
+     * Method: createEnemy
+     * Creates a new instance of Enemy with the specified properties.
+     * The properties must be set, in order for the enemy to be drawn correctly.
+     * @param gameData - The game data object containing the game state.
+     * @return enemyShip - The enemy entity that was created.
+     */
     @Override
     public Entity createEnemy(GameData gameData) {
         Enemy enemyShip = new Enemy();
@@ -61,10 +87,15 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
         enemyShip.setStrokeColor(Color.WHITE);
         enemyShip.setHealth(2);
         enemyShip.setDamage(3);
-        //startScheduler(enemyShip);
         return enemyShip;
     }
 
+    /**
+     * Method: spawnFromLeftUpperCorner
+     * Spawn the enemy from the left upper corner of the screen.
+     * @param enemyShip - The enemy entity to spawn.
+     * @param gameData - The game data object containing the game state.
+     */
     private void spawnFromLeftUpperCorner(Entity enemyShip, GameData gameData) {
         Random rnd = new Random();
         enemyShip.setRotation(rnd.nextInt(70) + 10);
@@ -72,6 +103,12 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
         enemyShip.setY(1);
     }
 
+    /**
+     * Method: spawnFromLeftLowerCorner
+     * Spawn the enemy from the left lower corner of the screen.
+     * @param enemyShip - The enemy entity to spawn.
+     * @param gameData - The game data object containing the game state.
+     */
     private void spawnFromLeftLowerCorner(Entity enemyShip, GameData gameData) {
         Random rnd = new Random();
         enemyShip.setRotation(rnd.nextInt(70) + 280);
@@ -79,6 +116,12 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
         enemyShip.setY(gameData.getDisplayHeight() - 1);
     }
 
+    /**
+     * Method: spawnFromRightUpperCorner
+     * Spawn the enemy from the right upper corner of the screen.
+     * @param enemyShip - The enemy entity to spawn.
+     * @param gameData - The game data object containing the game state.
+     */
     private void spawnFromRightUpperCorner(Entity enemyShip, GameData gameData) {
         Random rnd = new Random();
         enemyShip.setRotation(rnd.nextInt(70) + 100);
@@ -86,14 +129,16 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
         enemyShip.setY(1);
     }
 
+    /**
+     * Method: spawnFromRightLowerCorner
+     * Spawn the enemy from the right lower corner of the screen.
+     * @param enemyShip - The enemy entity to spawn.
+     * @param gameData - The game data object containing the game state.
+     */
     private void spawnFromRightLowerCorner(Entity enemyShip, GameData gameData) {
         Random rnd = new Random();
         enemyShip.setRotation(rnd.nextInt(70) + 190);
         enemyShip.setX(gameData.getDisplayWidth() - 1);
         enemyShip.setY(gameData.getDisplayHeight() - 1);
     }
-
-//    public void stopScheduler() {
-//        scheduler.shutdown();
-//    }
 }

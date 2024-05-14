@@ -13,9 +13,22 @@ import java.util.ServiceLoader;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * @author rasan22@student.sdu.dk
+ * Class: EnemyProcessor
+ * Implements: IEntityProcessingService
+ * Provided Interfaces: IEntityProcessingService
+ * Required Interfaces: BulletSPI
+ */
 public class EnemyProcessor implements IEntityProcessingService {
     private EnemyPlugin enemyPlugin = new EnemyPlugin();
 
+    /**
+     * Method: process
+     * Updates the enemy's position, rotation, direction, and health.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     */
     @Override
     public void process(GameData gameData, World world) {
 
@@ -36,6 +49,11 @@ public class EnemyProcessor implements IEntityProcessingService {
         }
     }
 
+    /**
+     * Method: move
+     * Moves the enemy in the direction specified by its directionX and directionY properties.
+     * @param enemyShip - The enemy entity to move.
+     */
     public void move(Entity enemyShip) {
         double newX = enemyShip.getX() + enemyShip.getDirectionX();
         double newY = enemyShip.getY() + enemyShip.getDirectionY();
@@ -43,6 +61,12 @@ public class EnemyProcessor implements IEntityProcessingService {
         enemyShip.setY(newY);
     };
 
+    /**
+     * Method: checkEnemyShipBounds
+     * Checks if the enemy is outside the game window, and moves it to the opposite side if it is.
+     * @param enemyShip - The enemy entity to check.
+     * @param gameData - The game data object containing the game state.
+     */
     private void checkEnemyShipBounds(Entity enemyShip, GameData gameData) {
         if (enemyShip.getX() < 0 - enemyShip.getSize()) {
             enemyShip.setX(gameData.getDisplayWidth() + enemyShip.getSize() - 1);
@@ -61,11 +85,24 @@ public class EnemyProcessor implements IEntityProcessingService {
         }
     }
 
+    /**
+     * Method: rotate
+     * Rotates the enemy to a random angle, between 0 and 360 degrees.
+     * This is used to make the enemy shoot in a random direction.
+     * @param enemyShip - The enemy entity to rotate.
+     */
     private void rotate(Entity enemyShip) {
         Random rnd = new Random();
         enemyShip.setRotation(rnd.nextInt(360));
     }
 
+    /**
+     * Method: changeDirection
+     * Changes the enemy's direction based on a sine wave.
+     * This is used to make the enemy move in a wavy pattern.
+     * @param enemyShip - The enemy entity to change the direction of.
+     * @param t - The time elapsed since the game started.
+     */
     private void changeDirection(Entity enemyShip, double t) {
         double amplitude = 30; // Amplitude of the sine wave
         double frequency = .1; // Frequency of the sine wave (controls how many cycles per unit of time)
@@ -81,6 +118,13 @@ public class EnemyProcessor implements IEntityProcessingService {
         enemyShip.setDirectionY(directionY);
     }
 
+    /**
+     * Method: updateHealth
+     * Updates the enemy's health, and respawns the enemy if its health is 0.
+     * @param enemy - The enemy entity to update the health of.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     */
     private void updateHealth(Entity enemy, GameData gameData, World world) {
         if (enemy.getHealth() <= 0) {
             world.removeEntity(enemy);
@@ -90,7 +134,10 @@ public class EnemyProcessor implements IEntityProcessingService {
         }
     }
 
-
+    /**
+     * Method: getBulletSPIs
+     * Gets all the BulletSPI implementations from the ServiceLoader.
+     */
     private Collection<? extends BulletSPI> getBulletSPIs() {
         return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }

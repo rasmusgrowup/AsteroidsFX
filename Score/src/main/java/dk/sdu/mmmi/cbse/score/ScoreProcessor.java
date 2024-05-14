@@ -10,10 +10,23 @@ import dk.sdu.mmmi.cbse.common.services.IScoreProcessorService;
 import dk.sdu.mmmi.cbse.playersystem.Player;
 
 /**
- * Author: rasan22
- *
+ * @author rasan22@student.sdu.dk
+ * Class: ScoreProcessor
+ * Implements: IScoreProcessorService
+ * Provided Interfaces: IScoreProcessorService
+ * Required Interfaces: GameData, World, Entity, Asteroid, Bullet, Enemy, Player
  */
 public class ScoreProcessor implements IScoreProcessorService {
+    /**
+     * Method: processScore
+     * Updates the health of the entities involved in the collision,
+     * and increments the destroyedAsteroid or destroyedEnemies counter
+     * in gameData if an asteroid or enemy is destroyed.
+     * @param gameData - The game data object containing the game state.
+     * @param world - The world object containing all entities in the game.
+     * @param entity1 - The first entity involved in the collision.
+     * @param entity2 - The second entity involved in the collision.
+     */
 
     @Override
     public void processScore(GameData gameData, World world, Entity entity1, Entity entity2) {
@@ -25,9 +38,6 @@ public class ScoreProcessor implements IScoreProcessorService {
         if (entity1.getHealth() <= 0 && entity1 instanceof Enemy && entity2 instanceof Bullet && ((Bullet) entity2).getOwner() instanceof Player) {
             gameData.incDestroyedEnemies();
         }
-//        if (entity2.getHealth() <= 0 && entity2 instanceof Asteroid && entity1 instanceof Bullet && ((Bullet) entity1).getOwner() instanceof Player) {
-//            gameData.incDestroyedAsteroid();
-//        }
         if (entity2.getHealth() <= 0 && entity2 instanceof Enemy && entity1 instanceof Bullet && ((Bullet) entity1).getOwner() instanceof Player) {
             gameData.incDestroyedEnemies();
         }
