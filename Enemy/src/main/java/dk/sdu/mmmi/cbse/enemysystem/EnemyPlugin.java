@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class EnemyPlugin implements IGamePluginService, EnemySPI {
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    //private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override
     public void start(GameData gameData, World world) {
@@ -23,7 +23,7 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
 
     @Override
     public void stop(GameData gameData, World world) {
-        stopScheduler();
+        //stopScheduler();
     }
 
     @Override
@@ -59,6 +59,8 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
         enemyShip.setRadius(sizeFactor * 7);
         enemyShip.setFillColor(Color.BLACK);
         enemyShip.setStrokeColor(Color.WHITE);
+        enemyShip.setHealth(2);
+        enemyShip.setDamage(3);
         //startScheduler(enemyShip);
         return enemyShip;
     }
@@ -91,7 +93,7 @@ public class EnemyPlugin implements IGamePluginService, EnemySPI {
         enemyShip.setY(gameData.getDisplayHeight() - 1);
     }
 
-    public void stopScheduler() {
-        scheduler.shutdown();
-    }
+//    public void stopScheduler() {
+//        scheduler.shutdown();
+//    }
 }

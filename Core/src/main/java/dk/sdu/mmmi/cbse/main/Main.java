@@ -8,15 +8,11 @@ import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
 
-import java.lang.module.Configuration;
-import java.lang.module.ModuleDescriptor;
-import java.lang.module.ModuleFinder;
-import java.lang.module.ModuleReference;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.util.stream.Collectors.toList;
+
+import dk.sdu.mmmi.cbse.common.services.IScoreProcessorService;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -25,6 +21,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -33,36 +30,28 @@ public class Main extends Application {
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
     private final Pane gameWindow = new Pane();
-    private Text text1, text2;
+    private Text text1, text2, text3, text4;
     private long startTime = System.nanoTime();
 
-    private static final List<ModuleLayer> allLayers = new ArrayList<>();
-
     public static void main(String[] args) {
-        Path pluginsPath = Paths.get("plugins");
-        ModuleFinder finder = ModuleFinder.of(pluginsPath);
-        finder.findAll().stream().map(ModuleReference::descriptor).map(ModuleDescriptor::name).map((plugin) ->
-                createLayer(pluginsPath.toString(), plugin)).forEach(allLayers::add);
         launch(Main.class);
-    }
-
-    private static ModuleLayer createLayer(String from, String... modules) {
-        ModuleFinder finder = ModuleFinder.of(Paths.get(from));
-        Set<String> moduleNames = new HashSet<>(Arrays.asList(modules));
-        Configuration cf = ModuleLayer.boot().configuration().resolve(finder, ModuleFinder.of(), moduleNames);
-        ModuleLayer parent = ModuleLayer.boot();
-        return parent.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
     }
 
     @Override
     public void start(Stage window) throws Exception {
-        text1 = new Text(10, 20, "Destroyed asteroids: 0" + gameData.getDestroyedAsteroids());
-        text2 = new Text(10, 50, "Destroyed enemies: 0" + gameData.getDestroyedEnemies());
+        text1 = new Text(10, 20, "Destroyed asteroids: " + gameData.getDestroyedAsteroids());
+        text2 = new Text(10, 50, "Destroyed enemies: " + gameData.getDestroyedEnemies());
+        text3 = new Text(10, gameData.getDisplayHeight() - 10, "Health: " + gameData.getPlayerHealth());
+        text4 = new Text(120, gameData.getDisplayHeight() / 2 + 50, "GAME OVER");
         text1.setFill(Color.RED);
         text2.setFill(Color.RED);
+        text3.setFill(Color.RED);
+        text4.setFill(Color.RED);
+        text4.setStyle("-fx-font-size: 100; -fx-font-weight: bold");
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         gameWindow.getChildren().add(text1);
         gameWindow.getChildren().add(text2);
+        gameWindow.getChildren().add(text3);
         gameWindow.setBackground(Background.fill(Color.BLACK));
 
         Scene scene = new Scene(gameWindow);
@@ -116,6 +105,7 @@ public class Main extends Application {
         window.setScene(scene);
         window.setTitle("ASTEROIDS");
         window.show();
+        window.setResizable(false);
 
     }
 
@@ -141,6 +131,12 @@ public class Main extends Application {
 
                 text1.setText("Destroyed asteroids: " + gameData.getDestroyedAsteroids());
                 text2.setText("Destroyed enemies: " + gameData.getDestroyedEnemies());
+                text3.setText("Health: " + gameData.getPlayerHealth());
+
+                if (gameData.isGameOver()) {
+                    stop();
+                    gameWindow.getChildren().add(text4);
+                }
             }
 
         }.start();
@@ -192,14 +188,10 @@ public class Main extends Application {
     }
 
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        List<IPostEntityProcessingService> allIPostEntityProcessingServices = new ArrayList<>();
+        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
 
-        ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).forEach(allIPostEntityProcessingServices::add);
-
-        for (ModuleLayer layer : allLayers) {
-            allIPostEntityProcessingServices.addAll(ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList()));
-        }
-
-        return allIPostEntityProcessingServices;
+    private Collection<? extends IScoreProcessorService> getIScoreProcessorService() {
+        return ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 }

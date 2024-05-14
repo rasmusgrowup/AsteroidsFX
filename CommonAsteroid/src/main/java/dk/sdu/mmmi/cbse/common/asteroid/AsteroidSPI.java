@@ -9,5 +9,4 @@ import dk.sdu.mmmi.cbse.common.data.GameData;
  */
 public interface AsteroidSPI {
     Entity createAsteroid(GameData gameData);
-    public void bounceAsteroid(Entity asteroid, GameData gameData);
 }

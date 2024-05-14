@@ -7,11 +7,11 @@
         <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>dk.sdu.mmmi.cbse.collissionsystem</groupId>
-    <artifactId>Collission</artifactId>
+    <groupId>dk.sdu.mmmi.cbse.score</groupId>
+    <artifactId>Score</artifactId>
     <packaging>jar</packaging>
 
-    <name>Collission</name>
+    <name>Score</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -32,26 +32,26 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>dk.sdu.mmmi.cbse.asteroid</groupId>
-            <artifactId>CommonAsteroid</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>dk.sdu.mmmi.cbse</groupId>
             <artifactId>CommonBullet</artifactId>
             <version>1.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>dk.sdu.mmmi.cbse.enemy</groupId>
-            <artifactId>CommonEnemy</artifactId>
+            <groupId>dk.sdu.mmmi.cbse</groupId>
+            <artifactId>Player</artifactId>
             <version>1.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>dk.sdu.mmmi.cbse</groupId>
-            <artifactId>Player</artifactId>
+            <groupId>dk.sdu.mmmi.cbse.asteroid</groupId>
+            <artifactId>CommonAsteroid</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>dk.sdu.mmmi.cbse.enemy</groupId>
+            <artifactId>CommonEnemy</artifactId>
             <version>1.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

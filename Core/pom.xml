@@ -71,12 +71,11 @@
                 <version>${javafx.maven.plugin.version}</version>
                 <configuration>
                     <mainClass>dk.sdu.mmmi.cbse.main.Main</mainClass>
-                    <!-- Additional module paths if needed
+                    <!-- Additional module paths if needed-->
                     <modulePaths>
                         <modulePath>../mods-mvn</modulePath>
                         <modulePath>../libs</modulePath>
                     </modulePaths>
-                    -->
                 </configuration>
             </plugin>
 

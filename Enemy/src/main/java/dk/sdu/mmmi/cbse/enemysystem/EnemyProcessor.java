@@ -14,6 +14,8 @@ import java.util.ServiceLoader;
 import static java.util.stream.Collectors.toList;
 
 public class EnemyProcessor implements IEntityProcessingService {
+    private EnemyPlugin enemyPlugin = new EnemyPlugin();
+
     @Override
     public void process(GameData gameData, World world) {
 
@@ -30,6 +32,7 @@ public class EnemyProcessor implements IEntityProcessingService {
                         }
                 );
             }
+            updateHealth(enemyShip, gameData, world);
         }
     }
 
@@ -76,6 +79,15 @@ public class EnemyProcessor implements IEntityProcessingService {
         double directionY = 2 * Math.sin(Math.toRadians(y));
         enemyShip.setDirectionX(directionX);
         enemyShip.setDirectionY(directionY);
+    }
+
+    private void updateHealth(Entity enemy, GameData gameData, World world) {
+        if (enemy.getHealth() <= 0) {
+            world.removeEntity(enemy);
+            //gameData.incDestroyedEnemies();
+            Entity newEnemy = enemyPlugin.createEnemy(gameData);
+            world.addEntity(newEnemy);
+        }
     }
 
 

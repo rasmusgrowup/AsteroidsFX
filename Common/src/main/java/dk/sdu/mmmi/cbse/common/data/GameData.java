@@ -6,6 +6,8 @@ public class GameData {
     private int displayHeight = 800;
     private int destroyedAsteroids = 0;
     private int destroyedEnemies = 0;
+    private int playerHealth;
+    private boolean gameOver;
     private float delta; // Time difference between frames
     private double elapsedTime;
     private final GameKeys keys = new GameKeys();
@@ -77,5 +79,29 @@ public class GameData {
 
     public void decDestroyedAsteroid() {
         this.destroyedEnemies--;
+    }
+
+    public int getPlayerHealth() {
+        return playerHealth;
+    }
+
+    public void setPlayerHealth(int playerHealth) {
+        this.playerHealth = playerHealth;
+    }
+
+    public void decPlayerHealth() {
+        this.playerHealth--;
+    }
+
+    public void incPlayerHealth() {
+        this.playerHealth++;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameover(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 }

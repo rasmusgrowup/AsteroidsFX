@@ -1,6 +1,7 @@
 package dk.sdu.mmmi.cbse.asteroidsystem;
 
 import dk.sdu.mmmi.cbse.common.asteroid.Asteroid;
+import dk.sdu.mmmi.cbse.common.asteroid.AsteroidSPI;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
@@ -12,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class AsteroidPlugin implements IGamePluginService {
+public class AsteroidPlugin implements IGamePluginService, AsteroidSPI {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -29,6 +30,7 @@ public class AsteroidPlugin implements IGamePluginService {
         stopScheduler();
     }
 
+    @Override
     public Entity createAsteroid(GameData gameData) {
         Entity asteroid = new Asteroid();
         Random rnd = new Random();
@@ -64,6 +66,8 @@ public class AsteroidPlugin implements IGamePluginService {
         asteroid.setRadius(size);
         asteroid.setFillColor(Color.BLACK);
         asteroid.setStrokeColor(Color.WHITE);
+        asteroid.setHealth(1);
+        asteroid.setDamage(3);
         return asteroid;
     }
 
@@ -79,28 +83,28 @@ public class AsteroidPlugin implements IGamePluginService {
         scheduler.shutdown();
     }
 
-    private void spawnFromLeftUpperCorner(Entity asteroid, GameData gameData) {
+    private static void spawnFromLeftUpperCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 10);
         asteroid.setX(1);
         asteroid.setY(1);
     }
 
-    private void spawnFromLeftLowerCorner(Entity asteroid, GameData gameData) {
+    private static void spawnFromLeftLowerCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 280);
         asteroid.setX(1);
         asteroid.setY(gameData.getDisplayHeight() - 1);
     }
 
-    private void spawnFromRightUpperCorner(Entity asteroid, GameData gameData) {
+    private static void spawnFromRightUpperCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 100);
         asteroid.setX(gameData.getDisplayWidth() - 1);
         asteroid.setY(1);
     }
 
-    private void spawnFromRightLowerCorner(Entity asteroid, GameData gameData) {
+    private static void spawnFromRightLowerCorner(Entity asteroid, GameData gameData) {
         Random rnd = new Random();
         asteroid.setRotation(rnd.nextInt(70) + 190);
         asteroid.setX(gameData.getDisplayWidth() - 1);

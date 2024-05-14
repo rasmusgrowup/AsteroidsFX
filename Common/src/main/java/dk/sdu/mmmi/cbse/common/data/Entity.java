@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class Entity implements Serializable {
+public abstract class Entity implements Serializable {
 
     private final UUID ID = UUID.randomUUID();
     
@@ -23,6 +23,7 @@ public class Entity implements Serializable {
     private Color fillColor;
     private Color strokeColor;
     private int health;
+    private int damage;
 
     public String getID() {
         return ID.toString();
@@ -141,5 +142,13 @@ public class Entity implements Serializable {
 
     public int getHealth() {
         return health;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public int getDamage() {
+        return damage;
     }
 }

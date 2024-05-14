@@ -1,6 +1,5 @@
 package dk.sdu.mmmi.cbse.playersystem;
 
-import dk.sdu.mmmi.cbse.common.asteroid.AsteroidSPI;
 import dk.sdu.mmmi.cbse.common.bullet.BulletSPI;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
@@ -18,10 +17,10 @@ public class PlayerControlSystem implements IEntityProcessingService {
     private static final double ACCELERATION_RATE = 200;
     private static final double DECELERATION_RATE = 25;
     private static final double MAX_SPEED = 400.0;
+    private static int currentHealth;
 
     @Override
     public void process(GameData gameData, World world) {
-            
         for (Entity player : world.getEntities(Player.class)) {
             // Logic for pressing LEFT
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
@@ -47,16 +46,16 @@ public class PlayerControlSystem implements IEntityProcessingService {
             }
 
             // Logic for pressing SPACE
-            if(gameData.getKeys().isPressed(GameKeys.SPACE)) {
+            if (gameData.getKeys().isPressed(GameKeys.SPACE)) {
                 getBulletSPIs().stream().findFirst().ifPresent(
                         spi -> {
                             world.addEntity(spi.createBullet(player, gameData));
                         }
                 );
             }
-
             updatePlayerPosition(player, gameData.getDelta());
             checkPlayerBounds(player, gameData);
+            updateHealth(player, gameData);
         }
     }
 
@@ -134,6 +133,24 @@ public class PlayerControlSystem implements IEntityProcessingService {
 
         player.setDirectionX(directionX);
         player.setDirectionY(directionY);
+    }
+
+    private void reset(Entity player, GameData gameData) {
+        player.setX(gameData.getDisplayWidth() / 2);
+        player.setY(gameData.getDisplayHeight() / 2);
+        player.setVelocityX(0);
+        player.setVelocityY(0);
+        player.setRotation(0);
+    }
+
+    private void updateHealth(Entity player, GameData gameData) {
+        if (player.getHealth() <= 0) {
+            gameData.setGameover(true);
+        } else if (player.getHealth() != currentHealth) {
+            reset(player, gameData);
+        }
+        currentHealth = player.getHealth();
+        gameData.setPlayerHealth(player.getHealth());
     }
 
     private Collection<? extends BulletSPI> getBulletSPIs() {
