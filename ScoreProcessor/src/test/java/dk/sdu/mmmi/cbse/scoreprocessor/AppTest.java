@@ -1,4 +1,4 @@
-package dk.sdu.mmmi.cbse.score;
+package dk.sdu.mmmi.cbse.scoreprocessor;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

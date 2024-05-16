@@ -21,7 +21,7 @@
         <module>Enemy</module>
         <module>CommonEnemy</module>
         <module>Collission</module>
-        <module>Score</module>
+        <module>ScoreProcessor</module>
     </modules>
     <properties>
         <java>java</java>

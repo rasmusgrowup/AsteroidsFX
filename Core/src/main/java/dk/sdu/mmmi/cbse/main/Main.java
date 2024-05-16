@@ -8,6 +8,10 @@ import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.util.stream.Collectors.toList;
@@ -38,6 +42,9 @@ public class Main extends Application {
     private final Pane gameWindow = new Pane();
     private Text text1, text2, text3, text4;
     private long startTime = System.nanoTime();
+    private static final String SCORE_SERVICE_URL = "http://localhost:8080/";
+    private int destroyedAsteroids = 0;
+    private int destroyedEnemies = 0;
 
     /**
      * Method: main
@@ -56,8 +63,8 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage window) throws Exception {
-        text1 = new Text(10, 20, "Destroyed asteroids: " + gameData.getDestroyedAsteroids());
-        text2 = new Text(10, 50, "Destroyed enemies: " + gameData.getDestroyedEnemies());
+        text1 = new Text(10, 20, "Destroyed asteroids: " + destroyedAsteroids);
+        text2 = new Text(10, 50, "Destroyed enemies: " + destroyedEnemies);
         text3 = new Text(10, gameData.getDisplayHeight() - 10, "Health: " + gameData.getPlayerHealth());
         text4 = new Text(120, gameData.getDisplayHeight() / 2 + 50, "GAME OVER");
         text1.setFill(Color.RED);
@@ -150,8 +157,8 @@ public class Main extends Application {
                 draw(); // Draws the Polygons
                 gameData.getKeys().update(); // Updates the keys used by the player
 
-                text1.setText("Destroyed asteroids: " + gameData.getDestroyedAsteroids());
-                text2.setText("Destroyed enemies: " + gameData.getDestroyedEnemies());
+                text1.setText("Destroyed asteroids: " + destroyedAsteroids);
+                text2.setText("Destroyed enemies: " + destroyedEnemies);
                 text3.setText("Health: " + gameData.getPlayerHealth());
 
                 if (gameData.isGameOver()) {
@@ -164,8 +171,9 @@ public class Main extends Application {
     }
 
     /**
-     * Method: stop
-     * Stops the game loop and removes the game window.
+     * Method: update
+     * Updates the Entities in the world.
+     * And retrives the score from the Score Service.
      */
     private void update() {
         // Update
@@ -174,6 +182,34 @@ public class Main extends Application {
         }
         for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
+        }
+
+        destroyedEnemies = getScore("getDestroyedEnemies");
+        destroyedAsteroids = getScore("getDestroyedAsteroids");
+    }
+
+    public int getScore(String path) {
+        try {
+            URL url = new URL(SCORE_SERVICE_URL + path);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+
+            in.close();
+            connection.disconnect();
+
+            return Integer.parseInt(content.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 
