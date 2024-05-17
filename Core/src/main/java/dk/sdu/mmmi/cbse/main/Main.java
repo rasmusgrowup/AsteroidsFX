@@ -133,6 +133,15 @@ public class Main extends Application {
 
     }
 
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        for (IGamePluginService iGamePlugin : getPluginServices()) {
+            iGamePlugin.stop(gameData, world);
+        }
+        // release resources or save state here
+    }
+
     /**
      * Method: render
      * Creates an AnimationTimer that updates the game window.

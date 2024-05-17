@@ -3,6 +3,8 @@ package dk.sdu.mmmi.cbse.playersystem;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
+import dk.sdu.mmmi.cbse.common.player.Player;
+import dk.sdu.mmmi.cbse.common.player.PlayerSPI;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import javafx.scene.paint.Color;
 
@@ -13,7 +15,7 @@ import javafx.scene.paint.Color;
  * Provided Interfaces: IGamePluginService
  * Required Interfaces: none
  */
-public class PlayerPlugin implements IGamePluginService {
+public class PlayerPlugin implements IGamePluginService, PlayerSPI {
 
     private Entity player;
 
@@ -26,7 +28,7 @@ public class PlayerPlugin implements IGamePluginService {
     @Override
     public void start(GameData gameData, World world) {
         // Add entities to the world
-        player = createPlayerShip(gameData);
+        player = createPlayer(gameData);
         world.addEntity(player);
     }
 
@@ -37,7 +39,8 @@ public class PlayerPlugin implements IGamePluginService {
      * @param gameData - The game data object containing the game state.
      * @return playerShip - The player entity that was created.
      */
-    private Entity createPlayerShip(GameData gameData) {
+    @Override
+    public Entity createPlayer(GameData gameData) {
         Entity playerShip = new Player();
         playerShip.setFillColor(Color.BLACK);
         playerShip.setStrokeColor(Color.WHITE);
@@ -65,5 +68,4 @@ public class PlayerPlugin implements IGamePluginService {
         // Remove entities
         world.removeEntity(player);
     }
-
 }
