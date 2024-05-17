@@ -2,23 +2,20 @@ package dk.sdu.mmmi.cbse.common.data;
 
 /**
  * The GameData class defines the window size,
- * the number of destroyed asteroids and enemies,
  * the player health, the game over state,
  * the time difference between frames
  * and the elapsed time.
  * It also holds the keys pressed by the player.
  */
 public class GameData {
-
     private int displayWidth  = 800 ;
     private int displayHeight = 800;
-    private int destroyedAsteroids = 0;
-    private int destroyedEnemies = 0;
     private int playerHealth;
     private boolean gameOver;
-    private float delta; // Time difference between frames
+    private float delta;
     private double elapsedTime;
     private final GameKeys keys = new GameKeys();
+    private Score score = Score.getInstance();
 
     public GameKeys getKeys() {
         return keys;
@@ -56,38 +53,6 @@ public class GameData {
         this.elapsedTime = elapsedTime;
     }
 
-    public int getDestroyedAsteroids() {
-        return destroyedAsteroids;
-    }
-
-    public void setDestroyedAsteroids(int destroyedAsteroids) {
-        this.destroyedAsteroids = destroyedAsteroids;
-    }
-
-    public int getDestroyedEnemies() {
-        return destroyedEnemies;
-    }
-
-    public void setDestroyedEnemies(int destroyedEnemies) {
-        this.destroyedEnemies = destroyedEnemies;
-    }
-
-    public void incDestroyedEnemies() {
-        this.destroyedEnemies++;
-    }
-
-    public void incDestroyedAsteroid() {
-        this.destroyedAsteroids++;
-    }
-
-    public void decDestroyedEnemies() {
-        this.destroyedEnemies--;
-    }
-
-    public void decDestroyedAsteroid() {
-        this.destroyedEnemies--;
-    }
-
     public int getPlayerHealth() {
         return playerHealth;
     }
@@ -110,5 +75,9 @@ public class GameData {
 
     public void setGameover(boolean gameOver) {
         this.gameOver = gameOver;
+    }
+
+    public Score getScore() {
+        return score;
     }
 }

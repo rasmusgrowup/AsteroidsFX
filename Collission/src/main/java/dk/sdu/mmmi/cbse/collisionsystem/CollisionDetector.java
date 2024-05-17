@@ -1,11 +1,12 @@
 package dk.sdu.mmmi.cbse.collisionsystem;
 
-import dk.sdu.mmmi.cbse.common.asteroid.Asteroid;
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
+import dk.sdu.mmmi.cbse.common.data.Score;
+import dk.sdu.mmmi.cbse.common.services.IHealthProcessorService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
+import dk.sdu.mmmi.cbse.common.bullet.IOwnable;
 import dk.sdu.mmmi.cbse.common.services.IScoreProcessorService;
 
 import java.util.Collection;
@@ -18,41 +19,53 @@ import static java.util.stream.Collectors.toList;
  * The CollisionDetector class is used to detect collisions between entities in the game.
  * The class implements the IPostEntityProcessingService interface
  * Provided Interfaces: IPostEntityProcessingService
- * Required Interfaces: IScoreProcessorService
+ * Required Interfaces: IScoreProcessorService, OwnerSPI, IHealthProcessorService
  */
 public class CollisionDetector implements IPostEntityProcessingService {
 
     /**
      * The method is used to process the game data and world objects, in order to detect collisions between entities.
      * The method loops through all entities in the world and checks if they collide with each other.
-     * If a collision is detected, the method calls the processScore method in all IScoreProcessorService implementations.
+     * If a collision is detected, the method calls the processScore method in all IScoreProcessorService implementations,
+     * and the processHealth method in all IHealthProcessorService implementations.
      * @param gameData - The gameData object containing the game data.
      * @param world - The world object containing the game world.
      */
     @Override
     public void process(GameData gameData, World world) {
-        // two for loops for all entities in the world
         Collection<Entity> entities = world.getEntities();
 
+        // two for loops for all entities in the world
         for (Entity entity1 : entities) {
             for (Entity entity2 : entities) {
                 if (entity1.equals(entity2)) {
                     continue;
                 }
 
-                if (entity1 instanceof Asteroid && entity2 instanceof Asteroid) {
+                if (entity1.getClass().equals(entity2.getClass())) {
                     continue;
                 }
 
-                if (entity1 instanceof Bullet && entity2.equals(((Bullet) entity1).getOwner())) {
-                    continue;
-                } else if (entity2 instanceof Bullet && entity1.equals(((Bullet) entity2).getOwner())) {
-                    continue;
+                if (entity1 instanceof IOwnable) {
+                    IOwnable ownable1 = (IOwnable) entity1;
+                    if (ownable1.getOwner().equals(entity2)) {
+                        continue;
+                    }
+                }
+
+                if (entity2 instanceof IOwnable) {
+                    IOwnable ownable2 = (IOwnable) entity2;
+                    if (ownable2.getOwner().equals(entity1)) {
+                        continue;
+                    }
                 }
 
                 if (collides(entity1, entity2)) {
+                    for (IHealthProcessorService healthProcessorService : getIHealthProcessorService()) {
+                        healthProcessorService.processHealth(entity1, entity2);
+                    }
                     for (IScoreProcessorService scoreProcessorService : getIScoreProcessorService()) {
-                        scoreProcessorService.processScore(gameData, world, entity1, entity2);
+                        scoreProcessorService.processScore(entity1, entity2, gameData.getScore());
                     }
                 }
             }
@@ -74,11 +87,21 @@ public class CollisionDetector implements IPostEntityProcessingService {
     }
 
     /**
-     * The method gets all IScoreProcessorService implementations.
-     * The method uses the ServiceLoader class to load all IScoreProcessorService implementations.
-     * @return - Returns a collection of IScoreProcessorService implementations.
+     * Method: getIScoreProcessorService
+     * Gets all the Score Processor Services using ServiceLoader.
+     * @return A collection of all the Score Processor Services.
      */
     private Collection<? extends IScoreProcessorService> getIScoreProcessorService() {
+        //System.out.println("found services: " + (int) ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).count());
         return ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
+
+    /**
+     * Method: getIHealthProcessorService
+     * Gets all the Health Processor Services using ServiceLoader.
+     * @return A collection of all the Health Processor Services.
+     */
+    private Collection<? extends IHealthProcessorService> getIHealthProcessorService() {
+        return ServiceLoader.load(IHealthProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 }

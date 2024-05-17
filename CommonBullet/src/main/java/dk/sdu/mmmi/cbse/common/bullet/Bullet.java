@@ -6,10 +6,19 @@ import dk.sdu.mmmi.cbse.common.data.Entity;
  * @author rasan22@student.sdu.dk
  * Class: Bullet
  * Extends: Entity
+ * Provides: OwnerSPI
  */
-public class Bullet extends Entity {
+public class Bullet extends Entity implements IOwnable {
     private Entity owner;
 
+    /**
+     * Constructor: Bullet
+     * Initializes the owner of the bullet.
+     * @param owner - The owner of the bullet.
+     */
+    public Bullet(Entity owner) {
+        this.owner = owner;
+    }
     /**
      * Method: getOwner
      * Returns the owner of the bullet.
