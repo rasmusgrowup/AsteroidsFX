@@ -5,7 +5,10 @@ import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.GameKeys;
 import dk.sdu.mmmi.cbse.common.data.World;
+import dk.sdu.mmmi.cbse.common.interfaces.IDamageable;
+import dk.sdu.mmmi.cbse.common.interfaces.IMovable;
 import dk.sdu.mmmi.cbse.common.player.Player;
+import dk.sdu.mmmi.cbse.common.interfaces.IAccelerate;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.Collection;
@@ -20,16 +23,17 @@ import static java.util.stream.Collectors.toList;
  * Provided Interfaces: IEntityProcessingService
  * Required Interfaces: BulletSPI
  */
-public class PlayerControlSystem implements IEntityProcessingService {
+public class PlayerControlSystem implements IEntityProcessingService, IAccelerate, IDamageable, IMovable {
     private static final double ACCELERATION_RATE = 200;
     private static final double DECELERATION_RATE = 25;
     private static final double MAX_SPEED = 400.0;
     private static int currentHealth;
+    private float deltaTime;
 
     /**
      * Method: process
      * Updates the player's position, rotation, and velocity based on the player's input,
-     * checks if the player is outside the game window, and updates the player's health.
+     * and checks if the player is outside the game window, and updates the player's health.
      * @param gameData - The game data object containing the game state.
      * @param world - The world object containing all entities in the game.
     */
@@ -39,13 +43,13 @@ public class PlayerControlSystem implements IEntityProcessingService {
             // Logic for pressing LEFT
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
                 player.setRotation(player.getRotation() - 3.5);
-                updateDirection(player);
+                rotate(player);
             }
 
             // Logic for pressing RIGHT
             if (gameData.getKeys().isDown(GameKeys.RIGHT)) {
                 player.setRotation(player.getRotation() + 3.5);
-                updateDirection(player);
+                rotate(player);
             }
 
             // Logic for pressing UP
@@ -67,9 +71,11 @@ public class PlayerControlSystem implements IEntityProcessingService {
                         }
                 );
             }
-            updatePlayerPosition(player, gameData.getDelta());
-            checkPlayerBounds(player, gameData);
-            updateHealth(player, gameData);
+            move(player);
+            //updatePosition(player, gameData.getDelta());
+            this.deltaTime = gameData.getDelta();
+            checkBounds(player, gameData);
+            processHealthChanges(player, world, gameData);
         }
     }
 
@@ -79,7 +85,8 @@ public class PlayerControlSystem implements IEntityProcessingService {
      * @param player - The player entity to accelerate.
      * @param deltaTime - The time since the last update.
      */
-    private void accelerate(Entity player, float deltaTime) {
+    @Override
+    public void accelerate(Entity player, float deltaTime) {
         double accelerationX = PlayerControlSystem.ACCELERATION_RATE * Math.cos(Math.toRadians(player.getRotation()));
         double accelerationY = PlayerControlSystem.ACCELERATION_RATE * Math.sin(Math.toRadians(player.getRotation()));
 
@@ -101,10 +108,9 @@ public class PlayerControlSystem implements IEntityProcessingService {
      * @param decelerationRate - The rate at which the player should decelerate.
      * @param deltaTime - The time since the last update.
      */
-    private void decelerate(Entity player, double decelerationRate, float deltaTime) {
-
+    @Override
+    public void decelerate(Entity player, double decelerationRate, float deltaTime) {
         double velocityMagnitude = Math.sqrt(player.getVelocityX() * player.getVelocityX() + player.getVelocityY() * player.getVelocityY());
-
         if (velocityMagnitude < decelerationRate * deltaTime) {
             player.setVelocityX(0);
             player.setVelocityY(0);
@@ -118,29 +124,14 @@ public class PlayerControlSystem implements IEntityProcessingService {
         }
     }
 
-
-    /**
-     * Method: updatePlayerPosition
-     * Updates the player's position based on the player's velocity,
-     * and the Player's current position.
-     * @param player - The player entity to update the position of.
-     * @param deltaTime - The time since the last update.
-     */
-    private void updatePlayerPosition(Entity player, float deltaTime) {
-        double newX = player.getX() + player.getVelocityX() * deltaTime;
-        double newY = player.getY() + player.getVelocityY() * deltaTime;
-
-        player.setX(newX);
-        player.setY(newY);
-    }
-
     /**
      * Method: checkPlayerBounds
      * Checks if the player is outside the game window, and moves the player to the opposite side if so.
      * @param player - The player entity to check the bounds of.
      * @param gameData - The game data object containing the game state.
      */
-    private void checkPlayerBounds(Entity player, GameData gameData) {
+    @Override
+    public void checkBounds(Entity player, GameData gameData) {
         if (player.getX() < 0) {
             player.setX(gameData.getDisplayWidth() - 1);
         }
@@ -159,17 +150,32 @@ public class PlayerControlSystem implements IEntityProcessingService {
     }
 
     /**
-     * Method: updateDirection
-     * Updates the player's direction based on the player's rotation.
+     * Method: rotate
+     * Updates the player's rotation based on the player's rotation.
      * @param player - The player entity to update the direction of.
      */
-    private void updateDirection(Entity player) {
+    @Override
+    public void rotate(Entity player) {
         double radians = Math.toRadians(player.getRotation());
         double directionX = Math.cos(radians);
         double directionY = Math.sin(radians);
 
         player.setDirectionX(directionX);
         player.setDirectionY(directionY);
+    }
+
+    /**
+     * Method: move
+     * Moves the player based on the player's velocity and the time since the last update.
+     * @param player - The player entity to move.
+     */
+    @Override
+    public void move(Entity player) {
+        double newX = player.getX() + player.getVelocityX() * deltaTime;
+        double newY = player.getY() + player.getVelocityY() * deltaTime;
+
+        player.setX(newX);
+        player.setY(newY);
     }
 
     /**
@@ -187,14 +193,16 @@ public class PlayerControlSystem implements IEntityProcessingService {
     }
 
     /**
-     * Method: updateHealth
-     * Updates the player's health, and sets the game over flag if the player's health is 0.
+     * Checks for updates in the player's health,
+     * and sets the 'game over' flag if the player's health is 0.
      * @param player - The player entity to update the health of.
      * @param gameData - The game data object containing the game state.
      */
-    private void updateHealth(Entity player, GameData gameData) {
+    @Override
+    public void processHealthChanges(Entity player, World world, GameData gameData) {
         if (player.getHealth() <= 0) {
             gameData.setGameover(true);
+            world.removeEntity(player);
         } else if (player.getHealth() != currentHealth) {
             reset(player, gameData);
         }

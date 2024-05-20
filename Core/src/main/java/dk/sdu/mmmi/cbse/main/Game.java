@@ -2,11 +2,6 @@ package dk.sdu.mmmi.cbse.main;
 
 import dk.sdu.mmmi.cbse.common.data.*;
 import dk.sdu.mmmi.cbse.common.services.*;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import static java.util.stream.Collectors.toList;
@@ -36,9 +31,6 @@ public class Game extends Application {
     private final Pane gameWindow = new Pane();
     private Text text1, text2, text3, text4;
     private long startTime = System.nanoTime();
-    private static final String SCORE_SERVICE_URL = "http://localhost:8080/";
-    private int destroyedAsteroids = 0;
-    private int destroyedEnemies = 0;
 
     /**
      * Method: start
@@ -48,8 +40,8 @@ public class Game extends Application {
      */
     @Override
     public void start(Stage window) throws Exception {
-        text1 = new Text(10, 20, "Destroyed asteroids: " + destroyedAsteroids);
-        text2 = new Text(10, 50, "Destroyed enemies: " + destroyedEnemies);
+        text1 = new Text(10, 20, "Destroyed asteroids: " + gameData.getScore().getDestroyedAsteroids());
+        text2 = new Text(10, 50, "Destroyed enemies: " + gameData.getScore().getDestroyedEnemies());
         text3 = new Text(10, gameData.getDisplayHeight() - 10, "Health: " + gameData.getPlayerHealth());
         text4 = new Text(120, gameData.getDisplayHeight() / 2 + 50, "GAME OVER");
         text1.setFill(Color.RED);
@@ -80,7 +72,6 @@ public class Game extends Application {
         window.setTitle("ASTEROIDS");
         window.show();
         window.setResizable(false);
-
     }
 
     private static Scene getScene(Pane gameWindow, GameData gameData) {
@@ -160,8 +151,8 @@ public class Game extends Application {
                 draw(); // Draws the Polygons
                 gameData.getKeys().update(); // Updates the keys used by the player
 
-                text1.setText("Destroyed asteroids: " + destroyedAsteroids);
-                text2.setText("Destroyed enemies: " + destroyedEnemies);
+                text1.setText("Destroyed asteroids: " + gameData.getScore().getDestroyedAsteroids());
+                text2.setText("Destroyed enemies: " + gameData.getScore().getDestroyedEnemies());
                 text3.setText("Health: " + gameData.getPlayerHealth());
 
                 if (gameData.isGameOver()) {
@@ -186,8 +177,6 @@ public class Game extends Application {
         for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
         }
-        destroyedEnemies = gameData.getScore().getDestroyedEnemies();
-        destroyedAsteroids = gameData.getScore().getDestroyedAsteroids();
     }
 
     /**
@@ -227,7 +216,11 @@ public class Game extends Application {
      * @return A collection of all the Game Plugins.
      */
     private Collection<? extends IGamePluginService> getPluginServices() {
-        return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader
+                .load(IGamePluginService.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .collect(toList());
     }
 
     /**
@@ -248,21 +241,21 @@ public class Game extends Application {
         return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
-    /**
-     * Method: getIScoreProcessorService
-     * Gets all the Score Processor Services using ServiceLoader.
-     * @return A collection of all the Score Processor Services.
-     */
-    private Collection<? extends IScoreProcessorService> getIScoreProcessorService() {
-        return ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-    }
-
-    /**
-     * Method: getIHealthProcessorService
-     * Gets all the Health Processor Services using ServiceLoader.
-     * @return A collection of all the Health Processor Services.
-     */
-    private Collection<? extends IHealthProcessorService> getIHealthProcessorService() {
-        return ServiceLoader.load(IHealthProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-    }
+//    /**
+//     * Method: getIScoreProcessorService
+//     * Gets all the Score Processor Services using ServiceLoader.
+//     * @return A collection of all the Score Processor Services.
+//     */
+//    private Collection<? extends IScoreProcessorService> getIScoreProcessorService() {
+//        return ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+//    }
+//
+//    /**
+//     * Method: getIHealthProcessorService
+//     * Gets all the Health Processor Services using ServiceLoader.
+//     * @return A collection of all the Health Processor Services.
+//     */
+//    private Collection<? extends IHealthProcessorService> getIHealthProcessorService() {
+//        return ServiceLoader.load(IHealthProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+//    }
 }

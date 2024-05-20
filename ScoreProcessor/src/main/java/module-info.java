@@ -7,7 +7,6 @@ module ScoreProcessor {
     requires CommonBullet;
     requires CommonEnemy;
     requires Player;
-    requires spring.context;
     requires CommonPlayer;
     provides IScoreProcessorService with dk.sdu.mmmi.cbse.scoreprocessor.ScoreProcessor;
 }

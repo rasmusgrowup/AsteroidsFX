@@ -1,11 +1,13 @@
 package dk.sdu.mmmi.cbse.asteroidsystem;
 
 import dk.sdu.mmmi.cbse.common.asteroid.Asteroid;
-import dk.sdu.mmmi.cbse.common.asteroid.IAsteroidSplitter;
+import dk.sdu.mmmi.cbse.common.interfaces.ISplittable;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
+import dk.sdu.mmmi.cbse.common.interfaces.IDamageable;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
+import dk.sdu.mmmi.cbse.common.interfaces.IMovable;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -14,11 +16,10 @@ import java.util.Random;
  * @author rasan22@student.sdu.dk
  * This class is responsible for processing asteroids.
  * It moves the asteroids, checks if they are out of bounds, rotates them and updates their health.
- * Implements the IEntityProcessingService interface.
- * Provided Interfaces: IEntityProcessingService
+ * Provided Interfaces: IEntityProcessingService, ISplittable, IMovable, IDamageable
  * Required Interfaces: None
  */
-public class AsteroidProcessor implements IEntityProcessingService, IAsteroidSplitter {
+public class AsteroidProcessor implements IEntityProcessingService, ISplittable, IMovable, IDamageable {
     private AsteroidPlugin asteroidPlugin = new AsteroidPlugin();
 
     /**
@@ -31,31 +32,33 @@ public class AsteroidProcessor implements IEntityProcessingService, IAsteroidSpl
     public void process(GameData gameData, World world) {
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             move(asteroid);
-            checkAsteroidsBounds(asteroid, gameData);
+            checkBounds(asteroid, gameData);
             rotate(asteroid);
-            updateHealth(asteroid, world, gameData);
+            processHealthChanges(asteroid, world, gameData);
         }
     }
 
     /**
-     * This method updates the health of the asteroid.
+     * This method checks for health updates of the asteroid.
+     * Its called continuously in the process method.
      * If the asteroid's health is less than or equal to 0, the asteroid is removed from the world.
      * If the asteroid's size is greater than 15, the asteroid is split into two smaller asteroids.
      * @param asteroid Entity object
      * @param world World object
      * @param gameData GameData object
      */
-    private void updateHealth(Entity asteroid, World world, GameData gameData) {
+    @Override
+    public void processHealthChanges(Entity asteroid, World world, GameData gameData) {
         if (asteroid.getHealth() <= 0) {
             if (asteroid.getSize() > 15) {
-                splitAsteroid(gameData, world, asteroid);
+                split(gameData, world, asteroid);
             }
             world.removeEntity(asteroid);
         }
     }
 
     @Override
-    public void splitAsteroid(GameData gameData, World world, Entity asteroid) {
+    public void split(GameData gameData, World world, Entity asteroid) {
         Entity asteroid1 = asteroidPlugin.createAsteroid(gameData);
         Entity asteroid2 = asteroidPlugin.createAsteroid(gameData);
         double[] polygonCoordinates = Arrays.stream(asteroid.getPolygonCoordinates()).map(point -> point * 0.5).toArray();
@@ -80,6 +83,7 @@ public class AsteroidProcessor implements IEntityProcessingService, IAsteroidSpl
      * It calculates the new x and y coordinates of the asteroid based on its direction.
      * @param asteroid Entity object
      */
+    @Override
     public void move(Entity asteroid) {
         double newX = asteroid.getX() + asteroid.getDirectionX();
         double newY = asteroid.getY() + asteroid.getDirectionY();
@@ -92,6 +96,7 @@ public class AsteroidProcessor implements IEntityProcessingService, IAsteroidSpl
      * It rotates the asteroid by a random angle.
      * @param asteroid Entity object
      */
+    @Override
     public void rotate(Entity asteroid) {
         asteroid.setRotation(asteroid.getRotation() + new Random().nextDouble(0.4));
     }
@@ -102,7 +107,8 @@ public class AsteroidProcessor implements IEntityProcessingService, IAsteroidSpl
      * @param asteroid Entity object
      * @param gameData GameData object
      */
-    private void checkAsteroidsBounds(Entity asteroid, GameData gameData) {
+    @Override
+    public void checkBounds(Entity asteroid, GameData gameData) {
         if (asteroid.getX() < 0 - asteroid.getSize()) {
             asteroid.setX(gameData.getDisplayWidth() + asteroid.getSize() - 1);
         }

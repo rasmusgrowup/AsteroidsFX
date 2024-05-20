@@ -2,8 +2,6 @@ package dk.sdu.mmmi.cbse.common.services;
 
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
-import dk.sdu.mmmi.cbse.common.data.Score;
-import dk.sdu.mmmi.cbse.common.data.World;
 
 /**
  * @author rasan22@student.sdu.dk
@@ -16,5 +14,5 @@ public interface IScoreProcessorService {
      * @param entity1 - The entity object containing the first entity.
      * @param entity2 - The entity object containing the second entity.
      */
-    void processScore(Entity entity1, Entity entity2, Score score);
+    void process(Entity entity1, Entity entity2, GameData gameData);
 }

@@ -1,15 +1,17 @@
 package dk.sdu.mmmi.cbse.collisionsystem;
 
-import dk.sdu.mmmi.cbse.common.data.Score;
+import dk.sdu.mmmi.cbse.common.services.ICollisionProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IHealthProcessorService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
-import dk.sdu.mmmi.cbse.common.bullet.IOwnable;
+import dk.sdu.mmmi.cbse.common.interfaces.IOwnable;
 import dk.sdu.mmmi.cbse.common.services.IScoreProcessorService;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.ServiceLoader;
 
 import static java.util.stream.Collectors.toList;
@@ -21,7 +23,7 @@ import static java.util.stream.Collectors.toList;
  * Provided Interfaces: IPostEntityProcessingService
  * Required Interfaces: IScoreProcessorService, OwnerSPI, IHealthProcessorService
  */
-public class CollisionDetector implements IPostEntityProcessingService {
+public class CollisionDetector implements IPostEntityProcessingService, ICollisionProcessingService {
 
     /**
      * The method is used to process the game data and world objects, in order to detect collisions between entities.
@@ -33,39 +35,32 @@ public class CollisionDetector implements IPostEntityProcessingService {
      */
     @Override
     public void process(GameData gameData, World world) {
-        Collection<Entity> entities = world.getEntities();
+        List<Entity> entities = new ArrayList<>(world.getEntities());
 
-        // two for loops for all entities in the world
-        for (Entity entity1 : entities) {
-            for (Entity entity2 : entities) {
-                if (entity1.equals(entity2)) {
-                    continue;
-                }
+        for (int i = 0; i < entities.size(); i++) {
+            Entity entity1 = entities.get(i);
 
+            for (Entity entity2 : entities.subList(i + 1, entities.size())) {
                 if (entity1.getClass().equals(entity2.getClass())) {
                     continue;
                 }
 
-                if (entity1 instanceof IOwnable) {
-                    IOwnable ownable1 = (IOwnable) entity1;
-                    if (ownable1.getOwner().equals(entity2)) {
-                        continue;
-                    }
+                IOwnable ownable1 = getIOwnable(entity1);
+                if (ownable1 != null && ownable1.getOwner().equals(entity2)) {
+                    continue;
                 }
 
-                if (entity2 instanceof IOwnable) {
-                    IOwnable ownable2 = (IOwnable) entity2;
-                    if (ownable2.getOwner().equals(entity1)) {
-                        continue;
-                    }
+                IOwnable ownable2 = getIOwnable(entity2);
+                if (ownable2 != null && ownable2.getOwner().equals(entity1)) {
+                    continue;
                 }
 
                 if (collides(entity1, entity2)) {
                     for (IHealthProcessorService healthProcessorService : getIHealthProcessorService()) {
-                        healthProcessorService.processHealth(entity1, entity2);
+                        healthProcessorService.process(entity1, entity2);
                     }
                     for (IScoreProcessorService scoreProcessorService : getIScoreProcessorService()) {
-                        scoreProcessorService.processScore(entity1, entity2, gameData.getScore());
+                        scoreProcessorService.process(entity1, entity2, gameData);
                     }
                 }
             }
@@ -79,6 +74,7 @@ public class CollisionDetector implements IPostEntityProcessingService {
      * @param entity2 - The second entity to check for collision.
      * @return - Returns a boolean value indicating if the two entities collide with each other.
      */
+    @Override
     public Boolean collides(Entity entity1, Entity entity2) {
         float dx = (float) entity1.getX() - (float) entity2.getX();
         float dy = (float) entity1.getY() - (float) entity2.getY();
@@ -92,7 +88,6 @@ public class CollisionDetector implements IPostEntityProcessingService {
      * @return A collection of all the Score Processor Services.
      */
     private Collection<? extends IScoreProcessorService> getIScoreProcessorService() {
-        //System.out.println("found services: " + (int) ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).count());
         return ServiceLoader.load(IScoreProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
@@ -103,5 +98,19 @@ public class CollisionDetector implements IPostEntityProcessingService {
      */
     private Collection<? extends IHealthProcessorService> getIHealthProcessorService() {
         return ServiceLoader.load(IHealthProcessorService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
+
+    /**
+     * Method: getIOwnable
+     * Gets the IOwnable interface of an entity.
+     * @param entity - The entity to get the IOwnable interface of.
+     * @return The IOwnable interface of the entity.
+     */
+    private IOwnable getIOwnable(Entity entity) {
+        if (entity instanceof IOwnable) {
+            return (IOwnable) entity;
+        } else {
+            return null;
+        }
     }
 }

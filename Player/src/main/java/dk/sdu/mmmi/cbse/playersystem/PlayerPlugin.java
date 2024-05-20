@@ -15,7 +15,7 @@ import javafx.scene.paint.Color;
  * Provided Interfaces: IGamePluginService
  * Required Interfaces: none
  */
-public class PlayerPlugin implements IGamePluginService, PlayerSPI {
+public class PlayerPlugin implements IGamePluginService, PlayerSPI{
 
     private Entity player;
 

@@ -5,7 +5,9 @@ import dk.sdu.mmmi.cbse.common.data.Entity;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.enemy.Enemy;
+import dk.sdu.mmmi.cbse.common.interfaces.IDamageable;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
+import dk.sdu.mmmi.cbse.common.interfaces.IMovable;
 
 import java.util.Collection;
 import java.util.Random;
@@ -20,7 +22,7 @@ import static java.util.stream.Collectors.toList;
  * Provided Interfaces: IEntityProcessingService
  * Required Interfaces: BulletSPI
  */
-public class EnemyProcessor implements IEntityProcessingService {
+public class EnemyProcessor implements IEntityProcessingService, IMovable, IDamageable {
     private EnemyPlugin enemyPlugin = new EnemyPlugin();
 
     /**
@@ -35,8 +37,8 @@ public class EnemyProcessor implements IEntityProcessingService {
         for (Entity enemyShip : world.getEntities(Enemy.class)) {
             move(enemyShip);
             rotate(enemyShip);
-            checkEnemyShipBounds(enemyShip, gameData);
-            changeDirection(enemyShip, gameData.getElapsedTime());
+            checkBounds(enemyShip, gameData);
+            updateDirection(enemyShip, gameData);
             Random rnd = new Random();
             if (rnd.nextInt(50 ) == 5) {
                 getBulletSPIs().stream().findFirst().ifPresent(
@@ -45,7 +47,7 @@ public class EnemyProcessor implements IEntityProcessingService {
                         }
                 );
             }
-            updateHealth(enemyShip, gameData, world);
+            processHealthChanges(enemyShip, world, gameData);
         }
     }
 
@@ -54,6 +56,7 @@ public class EnemyProcessor implements IEntityProcessingService {
      * Moves the enemy in the direction specified by its directionX and directionY properties.
      * @param enemyShip - The enemy entity to move.
      */
+    @Override
     public void move(Entity enemyShip) {
         double newX = enemyShip.getX() + enemyShip.getDirectionX();
         double newY = enemyShip.getY() + enemyShip.getDirectionY();
@@ -67,7 +70,8 @@ public class EnemyProcessor implements IEntityProcessingService {
      * @param enemyShip - The enemy entity to check.
      * @param gameData - The game data object containing the game state.
      */
-    private void checkEnemyShipBounds(Entity enemyShip, GameData gameData) {
+    @Override
+    public void checkBounds(Entity enemyShip, GameData gameData) {
         if (enemyShip.getX() < 0 - enemyShip.getSize()) {
             enemyShip.setX(gameData.getDisplayWidth() + enemyShip.getSize() - 1);
         }
@@ -91,7 +95,8 @@ public class EnemyProcessor implements IEntityProcessingService {
      * This is used to make the enemy shoot in a random direction.
      * @param enemyShip - The enemy entity to rotate.
      */
-    private void rotate(Entity enemyShip) {
+    @Override
+    public void rotate(Entity enemyShip) {
         Random rnd = new Random();
         enemyShip.setRotation(rnd.nextInt(360));
     }
@@ -101,13 +106,14 @@ public class EnemyProcessor implements IEntityProcessingService {
      * Changes the enemy's direction based on a sine wave.
      * This is used to make the enemy move in a wavy pattern.
      * @param enemyShip - The enemy entity to change the direction of.
-     * @param t - The time elapsed since the game started.
+     * @param gameData - The game data object containing the game state.
      */
-    private void changeDirection(Entity enemyShip, double t) {
+    public void updateDirection(Entity enemyShip, GameData gameData) {
         double amplitude = 30; // Amplitude of the sine wave
         double frequency = .1; // Frequency of the sine wave (controls how many cycles per unit of time)
         double phaseShift = 0; // Phase shift of the sine wave
         double initialRotation = ((Enemy) enemyShip).getInitialRotation();
+        double t = gameData.getElapsedTime();
 
         // Calculate the sine wave value
         double x = initialRotation + amplitude * Math.sin(2 * Math.PI * frequency * t + phaseShift);
@@ -125,7 +131,8 @@ public class EnemyProcessor implements IEntityProcessingService {
      * @param gameData - The game data object containing the game state.
      * @param world - The world object containing all entities in the game.
      */
-    private void updateHealth(Entity enemy, GameData gameData, World world) {
+    @Override
+    public void processHealthChanges(Entity enemy, World world, GameData gameData) {
         if (enemy.getHealth() <= 0) {
             world.removeEntity(enemy);
             //gameData.incDestroyedEnemies();
