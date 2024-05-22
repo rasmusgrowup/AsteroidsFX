@@ -27,7 +27,6 @@ public class PlayerPlugin implements IGamePluginService, PlayerSPI{
      */
     @Override
     public void start(GameData gameData, World world) {
-        // Add entities to the world
         player = createPlayer(gameData);
         world.addEntity(player);
     }
@@ -65,7 +64,6 @@ public class PlayerPlugin implements IGamePluginService, PlayerSPI{
      */
     @Override
     public void stop(GameData gameData, World world) {
-        // Remove entities
         world.removeEntity(player);
     }
 }

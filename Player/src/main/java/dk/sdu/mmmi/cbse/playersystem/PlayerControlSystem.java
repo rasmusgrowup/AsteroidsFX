@@ -39,6 +39,7 @@ public class PlayerControlSystem implements IEntityProcessingService, IAccelerat
     */
     @Override
     public void process(GameData gameData, World world) {
+        this.deltaTime = gameData.getDelta();
         for (Entity player : world.getEntities(Player.class)) {
             // Logic for pressing LEFT
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
@@ -59,6 +60,7 @@ public class PlayerControlSystem implements IEntityProcessingService, IAccelerat
                 decelerate(player, DECELERATION_RATE, gameData.getDelta());
             }
 
+            // Logic for pressing DOWN
             if (gameData.getKeys().isDown(GameKeys.DOWN)) {
                 decelerate(player, DECELERATION_RATE * 4, gameData.getDelta());
             }
@@ -73,7 +75,6 @@ public class PlayerControlSystem implements IEntityProcessingService, IAccelerat
             }
             move(player);
             //updatePosition(player, gameData.getDelta());
-            this.deltaTime = gameData.getDelta();
             checkBounds(player, gameData);
             processHealthChanges(player, world, gameData);
         }
@@ -173,9 +174,9 @@ public class PlayerControlSystem implements IEntityProcessingService, IAccelerat
     public void move(Entity player) {
         double newX = player.getX() + player.getVelocityX() * deltaTime;
         double newY = player.getY() + player.getVelocityY() * deltaTime;
-
         player.setX(newX);
         player.setY(newY);
+        System.out.println(deltaTime);
     }
 
     /**

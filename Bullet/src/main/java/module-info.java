@@ -4,6 +4,7 @@ import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 
 module Bullet {
+    exports dk.sdu.mmmi.cbse.bulletsystem;
     requires Common;
     requires CommonBullet;
     requires javafx.graphics;
